@@ -22,7 +22,7 @@ public class TaxHandler {
 			int count = 0;
 			for (MarketSign ms : plugin.marketHandler.getMarketSigns()) {
 				if (getPlayersOfflineTime(ms.getOwner()) >= getOfflinetime()) {
-					plugin.getEconomy().withdrawPlayer(ms.getOwner(), ms.getPrice()*percentage);
+					plugin.getEconomy().getAccount(ms.getOwner()).subtract(ms.getPrice()*percentage);
 					count++;
 				}
 				

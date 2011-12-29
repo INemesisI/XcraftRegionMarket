@@ -8,20 +8,21 @@ import java.util.logging.Logger;
 
 import me.INemesisI.XcraftRegionMarket.Commands.CommandHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.ConfigHandler;
+import me.INemesisI.XcraftRegionMarket.Handler.GroupHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.MarketHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.RegionHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.RentHandler;
 import me.INemesisI.XcraftRegionMarket.Listener.Blocklistener;
 import me.INemesisI.XcraftRegionMarket.Listener.Playerlistener;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
+import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class XcraftRegionMarket extends JavaPlugin {
@@ -32,11 +33,12 @@ public class XcraftRegionMarket extends JavaPlugin {
 	public RentHandler rentHandler;
 	public ConfigHandler configHandler;
 	public RegionHandler regionHandler;
+	public GroupHandler groupHandler;
 	//public TaxHandler taxHandler;
 
 	private WorldGuardPlugin worldguard;
-	private Permission permission = null;
-	private Economy economy = null;
+	private PermissionsPlugin permission = null;
+	private Method economy = null;
 	public Map<String, MarketSign> clicked = new HashMap<String, MarketSign>();
 
 	public Logger log = Logger.getLogger("Minecraft");
@@ -67,20 +69,13 @@ public class XcraftRegionMarket extends JavaPlugin {
 
 
 	private Boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
-		if (permissionProvider != null) {
-			permission = permissionProvider.getProvider();
-		}
+		permission = (PermissionsPlugin) getServer().getPluginManager().getPlugin("PermissionsBukkit");
 		return (permission != null);
 	}
 
 	private Boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-		if (economyProvider != null) {
-			economy = economyProvider.getProvider();
-		}
-
-		return (economy != null);
+		economy = Methods.getMethod();
+		return economy != null;
 	}
 
 	private Boolean setupWorldguard() {
@@ -94,15 +89,16 @@ public class XcraftRegionMarket extends JavaPlugin {
 		//taxHandler = new TaxHandler(this);
 		configHandler = new ConfigHandler(this);
 		regionHandler = new RegionHandler(this);
+		groupHandler = new GroupHandler(this);
 		
 		configHandler.load();
 	}
 
-	public Economy getEconomy() {
+	public Method getEconomy() {
 		return economy;
 	}
 
-	public Permission getPermission() {
+	public PermissionsPlugin getPermission() {
 		return permission;
 	}
 

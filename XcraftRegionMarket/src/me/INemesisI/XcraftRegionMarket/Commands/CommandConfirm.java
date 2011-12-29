@@ -24,7 +24,6 @@ public class CommandConfirm extends CommandHelper {
 	public void execute(CommandSender sender, String Command, List<String> args) {
 		this.sender = sender;
 		this.player = (Player) sender;
-		this.permission = plugin.getPermission();
 		this.economy = plugin.getEconomy();
 		this.worldguard = plugin.getWorldguard();
 
@@ -34,18 +33,16 @@ public class CommandConfirm extends CommandHelper {
 				error("Du musst erst auf ein Schild klicken!");
 				return;
 			}
-			if (!ms.getType().equals("sell") && !ms.getType().equals("rent"))
-				return;
+			if (!ms.getType().equals("sell") && !ms.getType().equals("rent")) return;
 			Map<String, Integer> count = new HashMap<String, Integer>();
-			if (ms.getType().equals("sell"))
-				count = plugin.regionHandler.getRegionCount(player, player.getWorld(), "sold");
+			if (ms.getType().equals("sell")) count = plugin.regionHandler.getRegionCount(player, player.getWorld(), "sold");
 			else
 				count = plugin.regionHandler.getRegionCount(player, player.getWorld(), "rented");
 			if (ms.getOwner().equals(sender.getName())) {
-				error("Du kannst dein eigenes Grundstück nicht kaufen. Nutze /rm stop um den Verkauf zu stoppen");
+				error("Du kannst dein eigenes GrundstÃ¼ck nicht kaufen. Nutze /rm stop um den Verkauf zu stoppen");
 				return;
 			}
-			if (!economy.has(player.getName(), ms.getPrice())) {
+			if (!economy.getAccount(player.getName()).hasEnough(ms.getPrice())) {
 				error("Du hast nicht genug Geld!");
 				return;
 			}
@@ -55,54 +52,49 @@ public class CommandConfirm extends CommandHelper {
 				return;
 			}
 			// set money
-			economy.depositPlayer(ms.getOwner(), ms.getPrice());
-			economy.withdrawPlayer(player.getName(), ms.getPrice());
+			economy.getAccount(ms.getOwner()).add(ms.getPrice());
+			economy.getAccount(player.getName()).subtract(ms.getPrice());
 			// set regionowner
 			plugin.regionHandler.setPlayer(region, player.getName());
 			plugin.regionHandler.addGroup(region, "xrm");
-			
+
 			if (ms.getType().equals("sell") && player.hasPermission("XcraftRegionMarket.Buy")) {
 				// inform the players
 				Player seller = plugin.getServer().getPlayer(ms.getOwner());
-				if (seller != null)
-					seller.sendMessage(plugin.getName() + player.getName()+ " hat dein Grundstück " + ms.getRegion()+ " für " + economy.format(ms.getPrice()) + " gekauft!");
-				reply("Du hast das Grundstück " + ms.getRegion() + " von "+ ms.getOwner() + " für " + ms.getPrice() + " gekauft!");
+				if (seller != null) seller.sendMessage(plugin.getName() + player.getName() + " hat dein GrundstÃ¼ck " + ms.getRegion() + " fÃ¼r " + economy.format(ms.getPrice()) + " gekauft!");
+				reply("Du hast das GrundstÃ¼ck " + ms.getRegion() + " von " + ms.getOwner() + " fÃ¼r " + ms.getPrice() + " gekauft!");
 				// set sign text
 				ms.setType("sold");
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				// set group
-				plugin.regionHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
+				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}
 			if (ms.getType().equals("rent") && player.hasPermission("XcraftRegionMarket.Rent")) {
 				// set rentsign
-				Rent rent = new Rent(ms.getBlock(), ms.getRegion(),
-						player.getName(), ms.getPrice(), ms.getIntervall());
+				Rent rent = new Rent(ms.getBlock(), ms.getRegion(), player.getName(), ms.getPrice(), ms.getIntervall());
 				for (Globalprice gp : plugin.marketHandler.getGlobalPrices()) {
-					if (gp.removeSign(ms) == true)
-						gp.addRent(rent);
+					if (gp.removeSign(ms) == true) gp.addRent(rent);
 				}
 				rent.setRenter(ms.getOwner());
 				plugin.rentHandler.add(rent);
 				// inform the players
 				Player seller = plugin.getServer().getPlayer(rent.getRenter());
-				if (seller != null)
-					seller.sendMessage(plugin.getName() + ms.getOwner()+ " hat dein Grundstück " + ms.getRegion()+ " für " + economy.format(ms.getPrice()) + " gemietet!");
-				reply("Du hast das Grundstück " + ms.getRegion() + " von "+ rent.getRenter() + " für " + economy.format(ms.getPrice()) + " pro "+ ms.getIntervall() + " gemietet!");
+				if (seller != null) seller.sendMessage(plugin.getName() + ms.getOwner() + " hat dein GrundstÃ¼ck " + ms.getRegion() + " fÃ¼r " + economy.format(ms.getPrice()) + " gemietet!");
+				reply("Du hast das GrundstÃ¼ck " + ms.getRegion() + " von " + rent.getRenter() + " fÃ¼r " + economy.format(ms.getPrice()) + " pro " + ms.getIntervall() + " gemietet!");
 				// set sign text
 				ms.setType("rented");
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				plugin.marketHandler.remove(ms);
 				// set group
-				plugin.regionHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
+				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}
 		}
 	}
-
 
 }

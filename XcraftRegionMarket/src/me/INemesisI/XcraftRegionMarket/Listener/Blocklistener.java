@@ -37,15 +37,15 @@ public class Blocklistener extends BlockListener {
 				.getPlayer().hasPermission("XcraftRegionMarket.Delete")) || event
 				.getPlayer().hasPermission("XcraftRegionMarket.Delete.Other"))) {
 			if (event.getPlayer().hasPermission("XcraftRegionMarket.Delete.Other")&& !ms.getOwner().equals(event.getPlayer().getName()))
-				plugin.getEconomy().depositPlayer(ms.getOwner(), ms.getPrice());
+				plugin.getEconomy().getAccount(ms.getOwner()).add(ms.getPrice());
 			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
 			plugin.regionHandler.removeGroup(region, "xrm");
 			plugin.regionHandler.removeAllPlayers(region);
 			plugin.regionHandler.saveRegion(event.getBlock().getWorld());
 			plugin.marketHandler.remove(ms);
-			event.getPlayer().sendMessage(plugin.getName() + "RegionMarket gelöscht!");
+			event.getPlayer().sendMessage(plugin.getName() + "RegionMarket gelï¿½scht!");
 		} else {
-			event.getPlayer().sendMessage(plugin.getName()+ ChatColor.RED+ "ERROR: Du hast keine Rechte MarketSigns zu löschen!");
+			event.getPlayer().sendMessage(plugin.getName()+ ChatColor.RED+ "ERROR: Du hast keine Rechte MarketSigns zu lï¿½schen!");
 			event.setCancelled(true);
 		}
 	}
@@ -75,7 +75,8 @@ public class Blocklistener extends BlockListener {
 		if (!region.getOwners().getPlayers().contains(player.getName())
 				&& !player.hasPermission("XcraftRegionMarket.Sell.All")) {
 			player.sendMessage(plugin.getName() + ChatColor.RED
-					+ "ERROR: Du hast keine Rechte für diese Region");
+					+ "ERROR: Du hast keine Rechte fï¿½r diese Region");
+			return;
 		}
 		if (!player.hasPermission("XcraftRegionMarket.Create")) {
 			player.sendMessage(plugin.getName() + ChatColor.RED
@@ -86,7 +87,7 @@ public class Blocklistener extends BlockListener {
 			if (sign.getRegion().equals(region.getId())) {
 				player.sendMessage(plugin.getName()
 						+ ChatColor.RED
-						+ "ERROR: Es gibt bereits ein MarketSign für diese Region");
+						+ "ERROR: Es gibt bereits ein MarketSign fï¿½r diese Region");
 				event.setCancelled(true);
 				return;
 			}

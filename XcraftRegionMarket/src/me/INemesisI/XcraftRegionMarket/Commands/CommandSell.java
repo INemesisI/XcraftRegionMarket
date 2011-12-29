@@ -21,7 +21,6 @@ public class CommandSell extends CommandHelper {
 		this.sender = sender;
 		this.player = (Player) sender;
 		this.economy = plugin.getEconomy();
-		this.permission = plugin.getPermission();
 		this.worldguard = plugin.getWorldguard();
 		MarketSign ms = getClicked().get(sender.getName());
 		if (ms == null) {
@@ -53,7 +52,7 @@ public class CommandSell extends CommandHelper {
 			}
 			ms.setType("sell");
 			plugin.marketHandler.update(ms);
-			reply("Deine Region wird ab jetzt für " + economy.format(price) + " angeboten");
+			reply("Deine Region wird ab jetzt fï¿½r " + economy.format(price) + " angeboten");
 		}
 		if (Command.contains("stop")) {
 			if (!ms.getType().equals("sell") && !ms.getType().equals("rented")) {
@@ -82,7 +81,7 @@ public class CommandSell extends CommandHelper {
 				// Remove the last given group
 				String group = plugin.configHandler.getRentgroups().get(plugin.regionHandler.getRegionCount(player, player.getWorld(), "rented").get("global")+1);
 				if (group != null) {
-					permission.playerRemoveGroup((String) null, group, player.getName());
+					plugin.groupHandler.removePlayerFromGroup(player.getName(), group);
 				}
 			}
 		}

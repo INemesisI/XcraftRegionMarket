@@ -8,10 +8,11 @@ import java.util.Date;
 
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
-import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+
+import com.nijikokun.register.payment.Method;
 
 public class RentHandler {
 	private XcraftRegionMarket plugin;
@@ -41,11 +42,11 @@ public class RentHandler {
 
 	private void checkRent(Rent rent, Date time) {
 		if (!time.before(rent.getPaytime())) {
-			Economy eco = plugin.getEconomy();
+			Method eco = plugin.getEconomy();
 			Player player = plugin.getServer().getPlayer(rent.getOwner());
-			if (eco.has(rent.getOwner(), rent.getPrice())) {
-				eco.withdrawPlayer(rent.getOwner(), rent.getPrice());
-				eco.depositPlayer(rent.getRenter(), rent.getPrice());
+			if (eco.getAccount(rent.getOwner()).hasEnough(rent.getPrice())) {
+				eco.getAccount(rent.getRenter()).add(rent.getPrice());
+				eco.getAccount(rent.getOwner()).subtract(rent.getPrice());
 				if (player != null) {
 					player.sendMessage(plugin.getName() + "Dir wurde deine Miete von " + plugin.getEconomy().format(rent.getPrice()) + " abgezogen");
 				}
@@ -55,8 +56,8 @@ public class RentHandler {
 				checkRent(rent, time);
 			} else {
 				if (player != null) {
-					player.sendMessage(plugin.getName() + "Du hattest nicht genügend Geld um deine Miete zu bezahlen.");
-					player.sendMessage(plugin.getName() + "Die Rechte für deine Region wurden dir genommen!");
+					player.sendMessage(plugin.getName() + "Du hattest nicht genï¿½gend Geld um deine Miete zu bezahlen.");
+					player.sendMessage(plugin.getName() + "Die Rechte fï¿½r deine Region wurden dir genommen!");
 				}
 				plugin.Debug(player+" had not enough money to pay his rented region "+rent.getRegion());
 				plugin.regionHandler.removeAllPlayers(plugin.regionHandler.getRegion(rent));

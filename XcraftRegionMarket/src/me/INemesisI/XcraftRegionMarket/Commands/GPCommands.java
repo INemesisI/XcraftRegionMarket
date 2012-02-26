@@ -2,23 +2,22 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
+import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
-import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandGP extends CommandHelper {
+public class GPCommands extends CommandHelper {
 
-	public CommandGP(XcraftRegionMarket instance) {
+	public GPCommands(XcraftRegionMarket instance) {
 		super(instance);
 	}
 
 	@Override
-	protected void execute(CommandSender sender, String Command,
-			List<String> list) {
+	protected void execute(CommandSender sender, String Command, List<String> list) {
 		this.sender = sender;
 		this.player = (Player) sender;
 		if (Command.equals("creategp") && player.hasPermission("XcraftRegionMarket.GP.Create")) {
@@ -47,11 +46,7 @@ public class CommandGP extends CommandHelper {
 				ms.setPrice(gp.getPrice(plugin.regionHandler.getRegion(ms)));
 				plugin.marketHandler.update(ms);
 			}
-			for (Rent rent : gp.getRents()) {
-				rent.setPrice(gp.getPrice(plugin.regionHandler.getRegion(rent)));
-				plugin.marketHandler.update(rent);
-			}
-			reply("Der Preis wurd geändert");
+			reply("Der Preis wurd geï¿½ndert");
 		}
 		if (Command.equals("listgp") && player.hasPermission("XcraftRegionMarket.GP.Use")) {
 			reply("Globalprices: " + getGP().toString());

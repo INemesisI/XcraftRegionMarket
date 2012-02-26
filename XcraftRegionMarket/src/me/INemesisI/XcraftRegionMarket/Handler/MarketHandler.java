@@ -82,6 +82,14 @@ public class MarketHandler {
 		return null;
 	}
 
+	public Globalprice getGlobalPrice(MarketSign ms) {
+		for (Globalprice gid : globalprices) {
+			if (gid.getMarketSigns().contains(ms))
+				return gid;
+		}
+		return null;
+	}
+	
 	public ArrayList<Globalprice> getGlobalPrices() {
 		return globalprices;
 	}

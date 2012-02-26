@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
+import me.INemesisI.XcraftRegionMarket.Commands.ConfirmCommand;
+import me.INemesisI.XcraftRegionMarket.Commands.EditCommands;
+import me.INemesisI.XcraftRegionMarket.Commands.GPCommands;
+import me.INemesisI.XcraftRegionMarket.Commands.PlayerCommands;
+import me.INemesisI.XcraftRegionMarket.Commands.PluginCommands;
+import me.INemesisI.XcraftRegionMarket.Commands.SellCommand;
+import me.INemesisI.XcraftRegionMarket.Commands.StopCommand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -20,44 +27,39 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 
 	public CommandHandler(XcraftRegionMarket instance) {
 		super(instance);
-
-		permNodes.put("save", "Save");
-		permNodes.put("reload", "Reload");
-		permNodes.put("creategp", "GP.Create");
-		permNodes.put("setgp", "GP.Edit");
-		permNodes.put("listgp", "GP.List");
-		permNodes.put("confirm", "Buy");
-		permNodes.put("abort", "Buy");
-		permNodes.put("sell", "Sell");
-		permNodes.put("rent", "Rent");
-		permNodes.put("stop", "Sell");
-		permNodes.put("addplayer", "AddPlayer");
-		permNodes.put("removeplayer", "RemovePlayer");
-		permNodes.put("settype", "Edit.Type");
-		permNodes.put("setregion", "Edit.Region");
-		permNodes.put("setprice", "Edit.Price");
-		permNodes.put("setowner", "Edit.Account");
-		permNodes.put("setintervall", "Edit.Intervall");
-		permNodes.put("setrenter", "Edit.Renter");
-
-		subcommands.put("save", new CommandPlugin(plugin));
-		subcommands.put("reload", new CommandPlugin(plugin));
-		subcommands.put("creategp", new CommandGP(plugin));
-		subcommands.put("setgp", new CommandGP(plugin));
-		subcommands.put("listgp", new CommandGP(plugin));
-		subcommands.put("confirm", new CommandConfirm(plugin));
-		subcommands.put("abort", new CommandConfirm(plugin));
-		subcommands.put("sell", new CommandSell(plugin));
-		subcommands.put("stop", new CommandSell(plugin));
-		subcommands.put("addplayer", new CommandPlayer(plugin));
-		subcommands.put("removeplayer", new CommandPlayer(plugin));
-		subcommands.put("settype", new CommandEdit(plugin));
-		subcommands.put("setregion", new CommandEdit(plugin));
-		subcommands.put("setprice", new CommandEdit(plugin));
-		subcommands.put("setowner", new CommandEdit(plugin));
-		subcommands.put("setintervall", new CommandEdit(plugin));
-		subcommands.put("setrenter", new CommandEdit(plugin));
+		CommandHelper ch = new PluginCommands(plugin);
+		addCommand("save", "Save", ch);
+		addCommand("reload", "Reload", ch);
+		
+		addCommand("confirm", "Buy", new ConfirmCommand(plugin));
+		addCommand("sell", "Sell", new SellCommand(plugin));
+		addCommand("stop", "Sell", new StopCommand(plugin));
+		addCommand("dispose", "Dispose", new DisposeCommand(plugin));
+		
+		ch = new PlayerCommands(plugin);
+		addCommand("addplayer", "AddPlayer", ch);
+		addCommand("removeplayer", "RemovePlayer", ch);
+		
+		ch = new GPCommands(plugin);
+		addCommand("creategp", "GP.Create", ch);
+		addCommand("setgp", "GP.Edit", ch);
+		addCommand("listgp", "GP.List", ch);
+		
+		ch = new EditCommands(plugin);
+		addCommand("settype", "Edit.Type", ch);
+		addCommand("setregion", "Edit.Region", ch);
+		addCommand("setprice", "Edit.Price", ch);
+		addCommand("setowner", "Edit.Account", ch);
+		addCommand("setintervall", "Edit.Intervall", ch);
+		addCommand("setrenter", "Edit.Renter", ch);
+		
 	}
+	
+	private void addCommand(String command, String permode, CommandHelper commandclass) {
+		permNodes.put(command, permode);
+		subcommands.put(command, commandclass);
+	}
+
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd,
@@ -68,11 +70,11 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 		if (player == null) {
 			// TODO: Console Stuff
 		} else if (args.length == 0 || args[0].equals("help")) {
-			PrintHelp();
+			PrintHelp(cmd.getName());
 			return true;
 		} else if (subcommands.get(args[0].toLowerCase()) == null) {
 			error("Unkown command: " + args[0].toLowerCase());
-		} else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes.get(args[0])) || player.isOp())) {
+		} else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes.get(args[0])))) {
 			error("You do not have access to that command!");
 			return true;
 		}
@@ -86,35 +88,35 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 		return true;
 	}
 
-	protected void print(String cmd, String values, String message) {
-		if (player.hasPermission("XcraftRegionMarket." + permNodes.get(cmd)))
-			sender.sendMessage(ChatColor.DARK_GRAY + "-->" + ChatColor.GREEN + "/rm " + cmd + " " + values + ChatColor.DARK_AQUA + "- " + message);
+	protected void print(String cmd, String command, String args, String message) {
+		if (sender.hasPermission(plugin.getDescription().getName() + "." + permNodes.get(command))) sender
+				.sendMessage(ChatColor.DARK_GRAY + "-->" + ChatColor.GREEN + "/" + cmd + " " + command + " " + args + ChatColor.DARK_AQUA + " - " + message);
 	}
 
-	public void PrintHelp() {
+	public void PrintHelp(String cmd) {
 		sender.sendMessage(ChatColor.BLUE + "["
 				+ plugin.getDescription().getFullName() + "] by INemesisI");
-		print("confirm", "", "Bestätigt das Kaufen eines Schildes");
+		print(cmd, "confirm", "", "Bestï¿½tigt das Kaufen eines Schildes");
+		print(cmd, "sell", "<preis>", "Bestï¿½tigt das verkaufen eines Schildes");
+		print(cmd, "stop", "", "Stopt den Verkauf eines Schildes");
+		print(cmd, "dispose", "", "Verkauft die Region billiger an den Server");
+		
+		print(cmd, "addplayer", "<name>", "FÃ¼gt jmd. zu deiner Region hinzu");
+		print(cmd, "removeplayer", "<name>", "Entfernt jmd. von deiner Region");
 
-		print("creategp", "<id> <preis>", "Erstellt einen neuen GlobalPrice");
-		print("setgp", "<id> <preis>", "Ändert den Preis eines GlobalPrice");
-		print("listgp", "", "Erstellt einen neuen GlobalPrice");
+		print(cmd, "creategp", "<id> <preis>", "Erstellt einen neuen GlobalPrice");
+		print(cmd, "setgp", "<id> <preis>", "Ã„ndert den Preis eines GlobalPrice");
+		print(cmd, "listgp", "", "Erstellt einen neuen GlobalPrice");
 
-		print("sell", "<preis>", "Bestätigt das verkaufen eines Schildes");
-		print("stop", "", "Stopt den Verkauf eines Schildes");
+		print(cmd, "settype", "<Typ>", "Ã„ndert den Typ");
+		print(cmd, "setregion", "<region>", "Ã„ndert die Region");
+		print(cmd, "setprice", "<preis>", "Ã„ndert den Preis");
+		print(cmd, "setowner", "<name>", "Ã„ndert den Besitzer");
+		print(cmd, "setintervall", "<intervall> (1d;1h)", "Ã„ndert das Intervall");
+		print(cmd, "setrenter", "<name>", "Ã„ndert den Vermieter");
 
-		print("addplayer", "<name>", "Fügt jmd. zu deiner Region hinzu");
-		print("removeplayer", "<name>", "Entfernt jmd. von deiner Region");
-
-		print("settype", "<Typ>", "Ändert den Typ");
-		print("setregion", "<region>", "Ändert die Region");
-		print("setprice", "<preis>", "Ändert den Preis");
-		print("setowner", "<name>", "Ändert den Besitzer");
-		print("setintervall", "<intervall> (1d;1h)", "Ändert das Intervall");
-		print("setrenter", "<name>", "Ändert den Vermieter");
-
-		print("save", "", "Speichert die Daten");
-		print("reload", "", "Lädt das Plugin neu");
+		print(cmd, "save", "", "Speichert die Daten");
+		print(cmd, "reload", "", "LÃ¤dt das Plugin neu");
 	}
 
 	@Override

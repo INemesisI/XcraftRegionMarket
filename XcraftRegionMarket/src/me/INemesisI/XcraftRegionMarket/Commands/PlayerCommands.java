@@ -2,6 +2,7 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
+import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
@@ -11,10 +12,10 @@ import org.bukkit.entity.Player;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-public class CommandPlayer extends CommandHelper {
+public class PlayerCommands extends CommandHelper {
 	PermissionsPlugin pb;
 
-	public CommandPlayer(XcraftRegionMarket instance) {
+	public PlayerCommands(XcraftRegionMarket instance) {
 		super(instance);
 		pb = (PermissionsPlugin) plugin.getServer().getPluginManager().getPlugin("PermissionsBukkit");
 	}
@@ -36,7 +37,7 @@ public class CommandPlayer extends CommandHelper {
 		}
 		Player member = plugin.getServer().getPlayer(list.get(0));
 		if (member == null) {
-			error("Der Spieler muss dafür online sein!");
+			error("Der Spieler muss dafï¿½r online sein!");
 			return;
 		}
 		ProtectedRegion region = plugin.regionHandler.getRegion(ms);
@@ -44,13 +45,13 @@ public class CommandPlayer extends CommandHelper {
 		if (Command.equals("addplayer")) {
 			plugin.regionHandler.addMember(region, member.getName());
 			plugin.regionHandler.saveRegion(player.getWorld());
-			reply(member.getName() + " wurde zu deiner Region hinzugefügt");
+			reply(member.getName() + " wurde zu deiner Region hinzugefï¿½gt");
 		}
 
 		if (Command.equals("removeplayer")) {
 			plugin.regionHandler.removeMember(region, member.getName());
 			plugin.regionHandler.saveRegion(player.getWorld());
-			reply(member.getName() + " wurde von deiner Region gelöscht");
+			reply(member.getName() + " wurde von deiner Region gelï¿½scht");
 		}
 
 		// TODO: /giveregion

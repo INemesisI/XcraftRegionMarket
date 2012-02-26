@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.INemesisI.XcraftRegionMarket.Globalprice;
+import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
@@ -14,9 +14,9 @@ import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-public class CommandConfirm extends CommandHelper {
+public class ConfirmCommand extends CommandHelper {
 
-	public CommandConfirm(XcraftRegionMarket instance) {
+	public ConfirmCommand(XcraftRegionMarket instance) {
 		super(instance);
 	}
 
@@ -34,10 +34,7 @@ public class CommandConfirm extends CommandHelper {
 				return;
 			}
 			if (!ms.getType().equals("sell") && !ms.getType().equals("rent")) return;
-			Map<String, Integer> count = new HashMap<String, Integer>();
-			if (ms.getType().equals("sell")) count = plugin.regionHandler.getRegionCount(player, player.getWorld(), "sold");
-			else
-				count = plugin.regionHandler.getRegionCount(player, player.getWorld(), "rented");
+			
 			if (ms.getOwner().equals(sender.getName())) {
 				error("Du kannst dein eigenes Grundstück nicht kaufen. Nutze /rm stop um den Verkauf zu stoppen");
 				return;
@@ -46,7 +43,11 @@ public class CommandConfirm extends CommandHelper {
 				error("Du hast nicht genug Geld!");
 				return;
 			}
-			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
+			Map<String, Integer> count = new HashMap<String, Integer>();
+			if (ms.getType().equals("sell")) count = plugin.regionHandler.getRegionCount(player, "sold");
+			else
+				count = plugin.regionHandler.getRegionCount(player, "rented");
+			
 			if (!plugin.regionHandler.canBuy(player.getName(), player.getWorld().getName(), ms.getType(), plugin.regionHandler.getRegion(ms), count)) {
 				error("Du hast dein Limit an Regionen erreicht. Du kannst nicht noch mehr Regionen besitzen!");
 				return;
@@ -55,6 +56,7 @@ public class CommandConfirm extends CommandHelper {
 			economy.getAccount(ms.getOwner()).add(ms.getPrice());
 			economy.getAccount(player.getName()).subtract(ms.getPrice());
 			// set regionowner
+			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
 			plugin.regionHandler.setPlayer(region, player.getName());
 			plugin.regionHandler.addGroup(region, "xrm");
 
@@ -68,16 +70,13 @@ public class CommandConfirm extends CommandHelper {
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				// set group
-				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
+				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), region.getId());
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}
 			if (ms.getType().equals("rent") && player.hasPermission("XcraftRegionMarket.Rent")) {
 				// set rentsign
 				Rent rent = new Rent(ms.getBlock(), ms.getRegion(), player.getName(), ms.getPrice(), ms.getIntervall());
-				for (Globalprice gp : plugin.marketHandler.getGlobalPrices()) {
-					if (gp.removeSign(ms) == true) gp.addRent(rent);
-				}
 				rent.setRenter(ms.getOwner());
 				plugin.rentHandler.add(rent);
 				// inform the players
@@ -90,7 +89,7 @@ public class CommandConfirm extends CommandHelper {
 				plugin.marketHandler.update(ms);
 				plugin.marketHandler.remove(ms);
 				// set group
-				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), count.get("global"));
+				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), region.getId());
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}

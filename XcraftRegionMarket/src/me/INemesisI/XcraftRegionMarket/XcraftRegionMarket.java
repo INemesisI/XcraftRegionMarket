@@ -12,11 +12,8 @@ import me.INemesisI.XcraftRegionMarket.Handler.GroupHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.MarketHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.RegionHandler;
 import me.INemesisI.XcraftRegionMarket.Handler.RentHandler;
-import me.INemesisI.XcraftRegionMarket.Listener.Blocklistener;
-import me.INemesisI.XcraftRegionMarket.Listener.Playerlistener;
 
 import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,8 +24,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class XcraftRegionMarket extends JavaPlugin {
 
-	private final Blocklistener Blocklistener = new Blocklistener(this);
-	private final Playerlistener Playerlistener = new Playerlistener(this);
+	private final EventListener eventlistener = new EventListener(this);
 	public MarketHandler marketHandler;
 	public RentHandler rentHandler;
 	public ConfigHandler configHandler;
@@ -52,9 +48,7 @@ public class XcraftRegionMarket extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerEvent(Event.Type.BLOCK_BREAK, this.Blocklistener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.SIGN_CHANGE, this.Blocklistener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, this.Playerlistener, Event.Priority.Normal, this);
+		pm.registerEvents(eventlistener, this);
 
 		getCommand("rm").setExecutor(new CommandHandler(this));
 

@@ -2,17 +2,17 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
+import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
-import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import me.INemesisI.XcraftRegionMarket.Handler.ConfigHandler;
 
 import org.bukkit.command.CommandSender;
 
-public class CommandPlugin extends CommandHelper {
+public class PluginCommands extends CommandHelper {
 
-	public CommandPlugin(XcraftRegionMarket instance) {
+	public PluginCommands(XcraftRegionMarket instance) {
 		super(instance);
 	}
 
@@ -32,9 +32,6 @@ public class CommandPlugin extends CommandHelper {
 			for (Globalprice gpr : plugin.marketHandler.getGlobalPrices()) {
 				for (MarketSign ms : gpr.getMarketSigns()) {
 					ms.setPrice(gpr.getPrice(plugin.regionHandler.getRegion(ms)));
-				}
-				for (Rent rent : gpr.getRents()) {
-					rent.setPrice(gpr.getPrice(plugin.regionHandler.getRegion(rent)));
 				}
 			}
 			for (MarketSign ms : plugin.marketHandler.getMarketSigns()) {

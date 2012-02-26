@@ -9,8 +9,7 @@ public class Globalprice {
 	String ID;
 	int price;
 	ArrayList<MarketSign> marketsigns = new ArrayList<MarketSign>();
-	ArrayList<Rent> rents = new ArrayList<Rent>();
-
+	
 	public Globalprice(String ID, int price) {
 		this.ID = ID;
 		this.price = price;
@@ -61,18 +60,6 @@ public class Globalprice {
 
 	public boolean removeSign(MarketSign marketsign) {
 		return marketsigns.remove(marketsign);
-	}
-
-	public void addRent(Rent rent) {
-		rents.add(rent);
-	}
-
-	public boolean removeRent(Rent rent) {
-		return rents.remove(rent);
-	}
-
-	public ArrayList<Rent> getRents() {
-		return rents;
 	}
 
 	public ArrayList<MarketSign> getMarketSigns() {

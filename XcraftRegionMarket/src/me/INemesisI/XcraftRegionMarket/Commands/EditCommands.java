@@ -2,6 +2,7 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
+import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.Rent;
@@ -13,10 +14,10 @@ import org.bukkit.entity.Player;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-public class CommandEdit extends CommandHelper {
+public class EditCommands extends CommandHelper {
 	PermissionsPlugin pb;
 
-	public CommandEdit(XcraftRegionMarket instance) {
+	public EditCommands(XcraftRegionMarket instance) {
 		super(instance);
 		pb = (PermissionsPlugin) plugin.getServer().getPluginManager()
 				.getPlugin("PermissionsBukkit");
@@ -48,7 +49,7 @@ public class CommandEdit extends CommandHelper {
 				plugin.rentHandler.add(rent);
 				plugin.marketHandler.remove(ms);
 			}
-			reply("Der Typ wurde erfolgreich geändert!");
+			reply("Der Typ wurde erfolgreich geï¿½ndert!");
 		}
 
 		if (Command.equals("setregion")) {
@@ -58,7 +59,7 @@ public class CommandEdit extends CommandHelper {
 			else {
 				ms.setRegion(list.get(0));
 				plugin.marketHandler.update(ms);
-				reply("Die Region wurde erfolgreich geändert!");
+				reply("Die Region wurde erfolgreich geï¿½ndert!");
 			}
 			return;
 		}
@@ -82,7 +83,7 @@ public class CommandEdit extends CommandHelper {
 				ms.setPrice(price);
 			}
 			plugin.marketHandler.update(ms);
-			reply("Der Preis wurde erfolgreich geändert!");
+			reply("Der Preis wurde erfolgreich geï¿½ndert!");
 			return;
 		}
 		if (Command.equals("setowner")) {
@@ -90,7 +91,7 @@ public class CommandEdit extends CommandHelper {
 			plugin.regionHandler.setPlayer(region, list.get(0));
 			ms.setOwner(list.get(0));
 			plugin.marketHandler.update(ms);
-			reply("Der Besitzer wurde erfolgreich geändert!");
+			reply("Der Besitzer wurde erfolgreich geï¿½ndert!");
 			return;
 		}
 
@@ -121,7 +122,7 @@ public class CommandEdit extends CommandHelper {
 			intervall = intervall + hour + " Std.";
 			ms.setIntervall(intervall);
 			plugin.marketHandler.update(ms);
-			reply("Das Intervall wurde erfolgreich geändert!");
+			reply("Das Intervall wurde erfolgreich geï¿½ndert!");
 			return;
 		}
 
@@ -132,7 +133,7 @@ public class CommandEdit extends CommandHelper {
 				return;
 			}
 			rent.setRenter(list.get(0));
-			reply("Der Vermieter wurde erfolgreich geändert!");
+			reply("Der Vermieter wurde erfolgreich geï¿½ndert!");
 			return;
 		}
 	}

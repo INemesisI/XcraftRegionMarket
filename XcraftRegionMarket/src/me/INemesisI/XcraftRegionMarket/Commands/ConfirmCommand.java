@@ -39,7 +39,7 @@ public class ConfirmCommand extends CommandHelper {
 				error("Du kannst dein eigenes Grundstück nicht kaufen. Nutze /rm stop um den Verkauf zu stoppen");
 				return;
 			}
-			if (!economy.getAccount(player.getName()).hasEnough(ms.getPrice())) {
+			if (!(economy.getBalance(ms.getOwner()) >= ms.getPrice())) {
 				error("Du hast nicht genug Geld!");
 				return;
 			}
@@ -48,13 +48,13 @@ public class ConfirmCommand extends CommandHelper {
 			else
 				count = plugin.regionHandler.getRegionCount(player, "rented");
 			
-			if (!plugin.regionHandler.canBuy(player.getName(), player.getWorld().getName(), ms.getType(), plugin.regionHandler.getRegion(ms), count)) {
-				error("Du hast dein Limit an Regionen erreicht. Du kannst nicht noch mehr Regionen besitzen!");
+			if (!plugin.regionHandler.canBuy(player, ms.getType(), plugin.regionHandler.getRegion(ms), count)) {
+				error("Du hast dein Limit an Regionen erreicht. Du kannst hier nicht noch mehr Regionen besitzen!");
 				return;
 			}
 			// set money
-			economy.getAccount(ms.getOwner()).add(ms.getPrice());
-			economy.getAccount(player.getName()).subtract(ms.getPrice());
+			economy.depositPlayer(ms.getOwner(), ms.getPrice());
+			economy.withdrawPlayer(player.getName(), ms.getPrice());
 			// set regionowner
 			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
 			plugin.regionHandler.setPlayer(region, player.getName());
@@ -70,7 +70,7 @@ public class ConfirmCommand extends CommandHelper {
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				// set group
-				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), region.getId());
+				plugin.groupHandler.setPermGroup(player, ms.getType(), region.getParent().getId());
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}
@@ -89,7 +89,7 @@ public class ConfirmCommand extends CommandHelper {
 				plugin.marketHandler.update(ms);
 				plugin.marketHandler.remove(ms);
 				// set group
-				plugin.groupHandler.setPermGroup(player.getName(), ms.getType(), region.getId());
+				plugin.groupHandler.setPermGroup(player, ms.getType(), region.getParent().getId());
 				// save region
 				plugin.regionHandler.saveRegion(ms.getBlock().getWorld());
 			}

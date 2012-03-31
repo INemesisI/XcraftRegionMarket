@@ -34,9 +34,9 @@ public class EventListener implements Listener {
 			String type = ms.getType();
 			Player player = event.getPlayer();
 			if (player.hasPermission("XcraftRegionMarket.Mod")) {
-				player.sendMessage(plugin.getName() + "MarketSign Info:");
-				player.sendMessage(plugin.getName() + "Type: " + ChatColor.GOLD + ms.getType());
-				player.sendMessage(plugin.getName() + "Region: " + ChatColor.GOLD + ms.getRegion());
+				player.sendMessage(plugin.getCName() + "MarketSign Info:");
+				player.sendMessage(plugin.getCName() + "Type: " + ChatColor.GOLD + ms.getType());
+				player.sendMessage(plugin.getCName() + "Region: " + ChatColor.GOLD + ms.getRegion());
 				String price = plugin.getEconomy().format(ms.getPrice());
 				for (Globalprice gp : plugin.marketHandler.getGlobalPrices()) {
 					if (!ms.getType().equals("rented")) {
@@ -45,16 +45,16 @@ public class EventListener implements Listener {
 						}
 					}
 				}
-				player.sendMessage(plugin.getName() + "Price: " + ChatColor.GOLD + price);
-				player.sendMessage(plugin.getName() + "Owner: " + ChatColor.GOLD + ms.getOwner());
+				player.sendMessage(plugin.getCName() + "Price: " + ChatColor.GOLD + price);
+				player.sendMessage(plugin.getCName() + "Owner: " + ChatColor.GOLD + ms.getOwner());
 				if (ms.getType().equals("rented") || ms.getType().equals("rent")) player
-						.sendMessage(plugin.getName() + "Intervall: " + ChatColor.GOLD + ms.getIntervall());
+						.sendMessage(plugin.getCName() + "Intervall: " + ChatColor.GOLD + ms.getIntervall());
 				Rent rent = plugin.rentHandler.getRent(ms.getBlock());
 				if (rent != null) {
-					player.sendMessage(plugin.getName() + "Renter: " + ChatColor.GOLD + rent.getRenter());
+					player.sendMessage(plugin.getCName() + "Renter: " + ChatColor.GOLD + rent.getRenter());
 					SimpleDateFormat date = new SimpleDateFormat();
 					date.applyPattern("yyyy.MM.dd HH:mm");
-					player.sendMessage(plugin.getName() + "Paytime: " + ChatColor.GOLD + date.format(rent.getPaytime()));
+					player.sendMessage(plugin.getCName() + "Paytime: " + ChatColor.GOLD + date.format(rent.getPaytime()));
 				}
 				plugin.clicked.put(player.getName(), ms);
 				return;
@@ -62,16 +62,16 @@ public class EventListener implements Listener {
 			if (type.equals("sell") && (player.hasPermission("XcraftRegionMarket.Buy")) || (type.equals("rent") && player
 					.hasPermission("XcraftRegionMarket.Rent"))) {
 				if (type.equals("sell") && ms.getOwner().equals(player.getName())) {
-					player.sendMessage(plugin.getName() + "Möchtest du dieses Grundstück nicht mehr verkaufen?");
-					player.sendMessage(plugin.getName() + "Schreibe /rm stop um den verkauf zu stoppen");
+					player.sendMessage(plugin.getCName() + "Möchtest du dieses Grundstück nicht mehr verkaufen?");
+					player.sendMessage(plugin.getCName() + "Schreibe /rm stop um den verkauf zu stoppen");
 					plugin.clicked.put(player.getName(), ms);
 					return;
 				}
 				if (ms.getType().equals("sell") || ms.getType().equals("rent")) {
 					if (ms.getType().equals("sell")) {
-						player.sendMessage(plugin.getName() + "Möchtest du dieses Grundstück kaufen?");
-						player.sendMessage(plugin.getName() + "Preis: " + ChatColor.GOLD + plugin.getEconomy().format(ms.getPrice()));
-						player.sendMessage(plugin.getName() + "Schreibe /rm confirm um es zu kaufen.");
+						player.sendMessage(plugin.getCName() + "Möchtest du dieses Grundstück kaufen?");
+						player.sendMessage(plugin.getCName() + "Preis: " + ChatColor.GOLD + plugin.getEconomy().format(ms.getPrice()));
+						player.sendMessage(plugin.getCName() + "Schreibe /rm confirm um es zu kaufen.");
 					}
 					if (ms.getType().equals("rent")) {
 						String intervall = ms.getIntervall();
@@ -80,9 +80,9 @@ public class EventListener implements Listener {
 							if (split[0].substring(0, 1).equals("0")) intervall = split[1];
 							if (split[1].substring(0, 1).equals("0")) intervall = split[0];
 						}
-						player.sendMessage(plugin.getName() + "Möchtest du dieses Grundstück mieten?");
-						player.sendMessage(plugin.getName() + "Preis: " + ChatColor.GOLD + plugin.getEconomy().format(ms.getPrice()) + " alle " + intervall);
-						player.sendMessage(plugin.getName() + "Schreibe /rm confirm um es zu mieten.");
+						player.sendMessage(plugin.getCName() + "Möchtest du dieses Grundstück mieten?");
+						player.sendMessage(plugin.getCName() + "Preis: " + ChatColor.GOLD + plugin.getEconomy().format(ms.getPrice()) + " alle " + intervall);
+						player.sendMessage(plugin.getCName() + "Schreibe /rm confirm um es zu mieten.");
 					}
 
 					plugin.clicked.put(player.getName(), ms);
@@ -91,17 +91,19 @@ public class EventListener implements Listener {
 			}
 			if (type.equals("sold") && (ms.getOwner().equals(player.getName()) || player.hasPermission("XcraftRegionmarket.Sell.All"))) {
 				plugin.clicked.put(player.getName(), ms);
-				player.sendMessage(plugin.getName() + "Möchtest du dein Grundstück wieder verkaufen?");
-				player.sendMessage(plugin.getName() + "Schreibe /rm sell <Preis> um es zum verkauf anzubieten!");
-				if (player.hasPermission(plugin.getName() + ".Dispose")) player
-						.sendMessage(plugin.getName() + "mit /rm dispose kannst du dein Grundstück direkt für " + plugin.getEconomy()
-								.format(plugin.configHandler.getDispose(ms.getPrice())) + " verkaufen");
-				return;
+				player.sendMessage(plugin.getCName() + "Möchtest du dein Grundstück wieder verkaufen?");
+				player.sendMessage(plugin.getCName() + "Schreibe /rm sell <Preis> um es zum verkauf anzubieten!");
+				if (player.hasPermission(plugin.getCName() + ".Dispose")) {
+					double price = plugin.marketHandler.getGlobalPrice(ms).getPrice(plugin.regionHandler.getRegion(ms));
+					player.sendMessage(plugin.getCName() + "mit /rm dispose kannst du dein Grundstück direkt für " + plugin.getEconomy()
+							.format(plugin.configHandler.getDispose(price)) + " verkaufen");
+					return;
+				}
 			}
 			if (type.equals("rented") && (ms.getOwner().equals(player.getName()) || player.hasPermission("XcraftRegionmarket.Rent.All"))) {
 				plugin.clicked.put(player.getName(), ms);
-				player.sendMessage(plugin.getName() + "Möchtest du dieses Grundstück nicht mehr mieten?");
-				player.sendMessage(plugin.getName() + "Schreibe /rm stop um das Grundstück abzugeben");
+				player.sendMessage(plugin.getCName() + "Möchtest du dieses Grundstück nicht mehr mieten?");
+				player.sendMessage(plugin.getCName() + "Schreibe /rm stop um das Grundstück abzugeben");
 				return;
 			}
 		}
@@ -116,15 +118,15 @@ public class EventListener implements Listener {
 		if (((ms.getOwner().equals(event.getPlayer().getName()) && event.getPlayer().hasPermission("XcraftRegionMarket.Delete")) || event
 				.getPlayer().hasPermission("XcraftRegionMarket.Delete.Other"))) {
 			if (event.getPlayer().hasPermission("XcraftRegionMarket.Delete.Other") && !ms.getOwner().equals(event.getPlayer().getName())) plugin
-					.getEconomy().getAccount(ms.getOwner()).add(ms.getPrice());
+			.getEconomy().depositPlayer(ms.getOwner(), ms.getPrice());
 			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
 			plugin.regionHandler.removeGroup(region, "xrm");
 			plugin.regionHandler.removeAllPlayers(region);
 			plugin.regionHandler.saveRegion(event.getBlock().getWorld());
 			plugin.marketHandler.remove(ms);
-			event.getPlayer().sendMessage(plugin.getName() + "RegionMarket gelöscht!");
+			event.getPlayer().sendMessage(plugin.getCName() + "RegionMarket gelöscht!");
 		} else {
-			event.getPlayer().sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Du hast keine Rechte MarketSigns zu löschen!");
+			event.getPlayer().sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Du hast keine Rechte MarketSigns zu löschen!");
 			event.setCancelled(true);
 		}
 	}
@@ -143,21 +145,21 @@ public class EventListener implements Listener {
 		RegionManager mgr = plugin.getWorldguard().getRegionManager(block.getWorld());
 		region = mgr.getRegion(event.getLine(1));
 		if (region == null) {
-			player.sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Es konnte keine Region unter der ID " + event.getLine(1) + " gefunden werden.");
+			player.sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Es konnte keine Region unter der ID " + event.getLine(1) + " gefunden werden.");
 			event.setCancelled(true);
 			return;
 		}
 		if (!region.getOwners().getPlayers().contains(player.getName()) && !player.hasPermission("XcraftRegionMarket.Sell.Other")) {
-			player.sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Du hast keine Rechte für diese Region");
+			player.sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Du hast keine Rechte für diese Region");
 			return;
 		}
 		if (!player.hasPermission("XcraftRegionMarket.Create")) {
-			player.sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Du hast keine Rechte MarketSigns zu erstellen!");
+			player.sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Du hast keine Rechte MarketSigns zu erstellen!");
 			return;
 		}
 		for (MarketSign sign : plugin.marketHandler.getMarketSigns()) {
 			if (sign.getRegion().equals(region.getId())) {
-				player.sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Es gibt bereits ein MarketSign für diese Region");
+				player.sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Es gibt bereits ein MarketSign für diese Region");
 				event.setCancelled(true);
 				return;
 			}
@@ -173,7 +175,7 @@ public class EventListener implements Listener {
 		if (!id.matches("\\d*")) {
 			gp = plugin.marketHandler.getGlobalPrice(id);
 			if (gp == null || !player.hasPermission("XcraftRegionMarket.GP.Use")) {
-				event.getPlayer().sendMessage(plugin.getName() + ChatColor.RED + "ERROR: Unbekannter Preis");
+				event.getPlayer().sendMessage(plugin.getCName() + ChatColor.RED + "ERROR: Unbekannter Preis");
 				event.setCancelled(true);
 				return;
 			} else
@@ -222,7 +224,7 @@ public class EventListener implements Listener {
 		}
 		plugin.regionHandler.removeAllPlayers(region);
 		plugin.regionHandler.addGroup(region, "xrm");
-		player.sendMessage(plugin.getName() + "RegionMarket wurde erstellt!");
+		player.sendMessage(plugin.getCName() + "RegionMarket wurde erstellt!");
 	}
 
 }

@@ -6,7 +6,6 @@ import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
-import me.INemesisI.XcraftRegionMarket.Handler.ConfigHandler;
 
 import org.bukkit.command.CommandSender;
 
@@ -20,22 +19,21 @@ public class PluginCommands extends CommandHelper {
 	public void execute(CommandSender sender, String Command, List<String> list) {
 		this.sender = sender;
 		if (Command.equals("save")) {
-			plugin.configHandler.save();
+			getConfigHandler().save();
 			reply("Saved the data to config file");
 		}
 		if (Command.equals("reload")) {
-			plugin.configHandler = new ConfigHandler(plugin);
-			plugin.configHandler.load();
+			getConfigHandler().load();
 			reply("Files reloaded");
 		}
 		if (Command.equals("update")) {
-			for (Globalprice gpr : plugin.marketHandler.getGlobalPrices()) {
+			for (Globalprice gpr : getMarketHandler().getGlobalPrices()) {
 				for (MarketSign ms : gpr.getMarketSigns()) {
 					ms.setPrice(gpr.getPrice(plugin.regionHandler.getRegion(ms)));
 				}
 			}
-			for (MarketSign ms : plugin.marketHandler.getMarketSigns()) {
-				plugin.marketHandler.update(ms);
+			for (MarketSign ms : getMarketHandler().getMarketSigns()) {
+				getMarketHandler().update(ms);
 			}
 		}
 	}

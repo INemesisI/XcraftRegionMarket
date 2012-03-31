@@ -9,15 +9,12 @@ import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class PlayerCommands extends CommandHelper {
-	PermissionsPlugin pb;
 
 	public PlayerCommands(XcraftRegionMarket instance) {
 		super(instance);
-		pb = (PermissionsPlugin) plugin.getServer().getPluginManager().getPlugin("PermissionsBukkit");
 	}
 
 	@Override
@@ -37,7 +34,7 @@ public class PlayerCommands extends CommandHelper {
 		}
 		Player member = plugin.getServer().getPlayer(list.get(0));
 		if (member == null) {
-			error("Der Spieler muss daf�r online sein!");
+			error("Der Spieler muss dafür online sein!");
 			return;
 		}
 		ProtectedRegion region = plugin.regionHandler.getRegion(ms);
@@ -45,7 +42,7 @@ public class PlayerCommands extends CommandHelper {
 		if (Command.equals("addplayer")) {
 			plugin.regionHandler.addMember(region, member.getName());
 			plugin.regionHandler.saveRegion(player.getWorld());
-			reply(member.getName() + " wurde zu deiner Region hinzugef�gt");
+			reply(member.getName() + " wurde zu deiner Region hinzugefügt");
 		}
 
 		if (Command.equals("removeplayer")) {

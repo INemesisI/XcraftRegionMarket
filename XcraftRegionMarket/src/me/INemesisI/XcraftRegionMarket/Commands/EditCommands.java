@@ -11,16 +11,12 @@ import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class EditCommands extends CommandHelper {
-	PermissionsPlugin pb;
 
 	public EditCommands(XcraftRegionMarket instance) {
 		super(instance);
-		pb = (PermissionsPlugin) plugin.getServer().getPluginManager()
-				.getPlugin("PermissionsBukkit");
 	}
 
 	@Override

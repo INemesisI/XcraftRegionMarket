@@ -39,14 +39,19 @@ public class DisposeCommand extends CommandHelper {
 			return;
 		}
 
-		ms.setType("sell");
-		// set money
-		economy.getAccount(ms.getOwner()).add(plugin.configHandler.getDispose(ms.getPrice()));
-		// set regionowner
 		ProtectedRegion region = plugin.regionHandler.getRegion(ms);
-		plugin.regionHandler.setPlayer(region, plugin.configHandler.getServerAccount());
+		double price = getMarketHandler().getGlobalPrice(ms).getPrice(region);
+		double dispose = getConfigHandler().getDispose();
+		// set money;
+		economy.depositPlayer(ms.getOwner(), dispose);
+		// set regionowner
+		plugin.regionHandler.removeAllPlayers(region);
+		// set sign
+		ms.setPrice(price);
+		ms.setOwner(plugin.configHandler.getServerAccount());
+		ms.setType("sell");
+		getMarketHandler().update(ms);
 		
-		plugin.marketHandler.update(ms);
-		reply("Deine Region wurde für " + economy.format(plugin.configHandler.getDispose(ms.getPrice())) + " an den Server verkauft!");
+		reply("Deine Region wurde für " + economy.format(dispose) + " an den Server verkauft!");
 	}
 }

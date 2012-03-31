@@ -32,7 +32,7 @@ public class ConfigHandler {
 	private FileConfiguration config;
 	private FileConfiguration datacfg;
 	private File dataFile;
-	
+
 	private String ServerAccount;
 
 	private Map<String, Integer> selllimit = new HashMap<String, Integer>(); // type,limit
@@ -47,9 +47,8 @@ public class ConfigHandler {
 	private SimpleDateFormat date = new SimpleDateFormat();
 
 	private boolean debug;
-	
+
 	private int dispose;
-	private int min;
 	private int max;
 
 	public ConfigHandler(XcraftRegionMarket instance) {
@@ -64,9 +63,9 @@ public class ConfigHandler {
 		setDefaults();
 		ConfigurationSection cs;
 		// Configload
-		
+
 		setServerAccount(config.getString("ServerAccount"));
-		
+
 		selllimit.put("global", config.getInt("Limits.sell.global", -1));
 		for (String key : config.getConfigurationSection("Limits.sell.worlds").getKeys(false)) {
 			selllimit.put("w:" + key, config.getInt("Limits.sell.worlds." + key));
@@ -116,13 +115,12 @@ public class ConfigHandler {
 		for (String key : cs.getKeys(false))
 			layout.put(key, (ArrayList<String>) cs.getStringList(key));
 		mh.setLayout(layout);
-				
+
 		// Debug
 		setDebug(config.getBoolean("Debug", false));
-		//Dispose
+		// Dispose
 		setDispose(config.getInt("Dispose.percentage", 50));
-		setMin(config.getInt("Dispose.min", 0));
-		setMin(config.getInt("Dispose.max", 0));
+		setMax(config.getInt("Dispose.max", 0));
 
 		dataFile = new File(plugin.getDataFolder(), "Data.yml");
 		if (!dataFile.exists()) {
@@ -134,16 +132,6 @@ public class ConfigHandler {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		// Tax
-		/*
-		 * plugin.taxHandler.setOfflinetime(config.getLong("Tax.Offlinetime"));
-		 * plugin.taxHandler.setPercentage(config.getDouble("Tax.Percentage",
-		 * 1)); plugin.taxHandler.setIntervall(config.getInt("Tax.Intervall",
-		 * 1)); Date d = null; String time = (datacfg.getString("Tax.Date")); if
-		 * (time != null) try { d = date.parse(time); } catch (ParseException
-		 * e1) {} plugin.taxHandler.setDate(d);
-		 */
-		
 		boolean loadold = true;
 		// GlobalPrice load
 		cs = datacfg.getConfigurationSection("GlobalPrices");
@@ -162,7 +150,7 @@ public class ConfigHandler {
 				ConfigurationSection regioncs = datacfg.getConfigurationSection("MarketSigns." + worldkey);
 				World world = plugin.getServer().getWorld(worldkey);
 				if (world == null) {
-					plugin.log.warning(plugin.getName() + "World " + worldkey + " was not loaded. Regions where not loaded aswell!");
+					plugin.log.warning(plugin.getCName() + "World " + worldkey + " was not loaded. Regions where not loaded aswell!");
 					continue;
 				}
 				for (String regionkey : regioncs.getKeys(false)) {
@@ -244,13 +232,13 @@ public class ConfigHandler {
 	}
 
 	public boolean loadSign(World world, String region) {
-		System.out.println(region);
 		ConfigurationSection sign = datacfg.getConfigurationSection("MarketSigns." + world.getName() + "." + region);
 		Block block = world.getBlockAt(sign.getInt("X"), sign.getInt("Y"), sign.getInt("Z"));
 		if ((block.getType().equals(Material.SIGN_POST) || block.getType().equals(Material.WALL_SIGN))) {
 			String type = sign.getString("Type");
 			MarketSign ms = null;
-			if (type.equals("sell") || type.equals("sold")) { // [sell] and [sold]
+			if (type.equals("sell") || type.equals("sold")) { // [sell] and
+																// [sold]
 				ms = new MarketSign(block, region, type, sign.getString("Account"), sign.getDouble("Price"));
 				mh.add(ms);
 			} else if (type.equals("rent")) { // [rent]
@@ -268,22 +256,19 @@ public class ConfigHandler {
 				plugin.rentHandler.add(rent);
 				ms = rent;
 			}
-			System.out.println(ms == null);
 			if (ms == null) return false;
 			// GlobalPrice load for that sign
 			String id = sign.getString("GP");
-			System.out.println("GP: " + id);
 			if (id != null && ms != null) {
 				Globalprice gp = plugin.marketHandler.getGlobalPrice(id);
-				System.out.println(gp == null);
 				gp.addSign(ms);
 				// Update Sign
-				ms.setPrice(gp.getPrice(plugin.regionHandler.getRegion(ms)));
+				if (ms.getOwner().equalsIgnoreCase(getServerAccount())) ms.setPrice(gp.getPrice(plugin.regionHandler.getRegion(ms)));
 				mh.update(ms);
 			}
 		} else {
 			plugin.log
-					.warning(plugin.getName() + "Could not find a sign block for region " + region + ". The marketsign has not been loaded!");
+					.warning(plugin.getCName() + "Could not find a sign block for region " + region + ". The marketsign has not been loaded!");
 			return false;
 		}
 		return true;
@@ -363,26 +348,17 @@ public class ConfigHandler {
 	}
 
 	public double getDispose(double price) {
-		double p = getDispose()/100 * price;
-		if (p < getMin()) p = getMin();
-		if (getMax() != 0 && p > getMax()) p = getMax();
+		double p = ((double) getDispose() / 100) * price;
+		if (getMax() <= 0 && p > getMax()) p = getMax();
 		return p;
 	}
-	
+
 	public int getDispose() {
 		return dispose;
 	}
 
 	public void setDispose(int dispose) {
 		this.dispose = dispose;
-	}
-
-	public int getMin() {
-		return min;
-	}
-
-	public void setMin(int min) {
-		this.min = min;
 	}
 
 	public int getMax() {

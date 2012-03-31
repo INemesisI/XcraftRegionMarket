@@ -57,7 +57,7 @@ public class MarketHandler {
 		for (MarketSign ms : signs)
 			list.add(ms);
 		for (Rent rent : plugin.rentHandler.getRents()) {
-			list.add(new MarketSign(rent.getBlock(), rent.getRegion(), rent.getType(), rent.getOwner(), rent.getPrice(), rent.getIntervall()));
+			list.add(rent);
 		}
 		return signs;
 	}

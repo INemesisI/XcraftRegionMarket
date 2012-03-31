@@ -41,7 +41,7 @@ public class StopCommand extends CommandHelper {
 			plugin.marketHandler.update(ms);
 			reply("Deine Region wird ab jetzt nicht mehr zum Verkauf angeboten");
 		}
-		
+
 		if (ms.getType().equals("rented")) {
 			ms.setType("rent");
 			plugin.regionHandler.removeOwner(plugin.regionHandler.getRegion(ms), ms.getOwner());
@@ -53,10 +53,10 @@ public class StopCommand extends CommandHelper {
 			plugin.marketHandler.update(ms);
 			reply("Deine Region wurde abgegeben, du musst keine Miete mehr zahlen");
 			// Remove the given group
-			for (String group : plugin.groupHandler.getPlayerGroups(sender.getName())) {
-				if (plugin.configHandler.getRentgroups().containsKey(group) && plugin.configHandler.getRentgroups().containsValue(
+			for (String group : plugin.getPermission().getPlayerGroups(player)) {
+				if (plugin.configHandler.getRentgroups().containsKey(group) && plugin.configHandler.getRentgroups().get(group).contains(
 						plugin.regionHandler.getRegion(ms).getParent().getId())) {
-					plugin.groupHandler.removePlayerFromGroup(player.getName(), group);
+					plugin.getPermission().playerRemoveGroup(player, group);
 				}
 			}
 		}

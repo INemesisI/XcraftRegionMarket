@@ -96,15 +96,15 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 	public void PrintHelp(String cmd) {
 		sender.sendMessage(ChatColor.BLUE + "["
 				+ plugin.getDescription().getFullName() + "] by INemesisI");
-		print(cmd, "confirm", "", "Best�tigt das Kaufen eines Schildes");
-		print(cmd, "sell", "<preis>", "Best�tigt das verkaufen eines Schildes");
-		print(cmd, "stop", "", "Stopt den Verkauf eines Schildes");
-		print(cmd, "dispose", "", "Verkauft die Region billiger an den Server");
+		print(cmd, "confirm", "", "Bestätigt das Kaufen einer Region");
+		print(cmd, "sell", "<preis>", "Bestätigt das verkaufen einer Region");
+		print(cmd, "stop", "", "Stopt den Verkauf einer Region");
+		print(cmd, "dispose", "", "Verkauft eine Region an den Server");
 		
-		print(cmd, "addplayer", "<name>", "Fügt jmd. zu deiner Region hinzu");
-		print(cmd, "removeplayer", "<name>", "Entfernt jmd. von deiner Region");
+		print(cmd, "addplayer", "<name>", "Fügt jmd. zu einer Region hinzu");
+		print(cmd, "removeplayer", "<name>", "Entfernt jmd. von einer Region");
 
-		print(cmd, "creategp", "<id> <preis>", "Erstellt einen neuen GlobalPrice");
+		print(cmd, "creategp", "<id> <preis>", "Erstellt einen GlobalPrice");
 		print(cmd, "setgp", "<id> <preis>", "Ändert den Preis eines GlobalPrice");
 		print(cmd, "listgp", "", "Erstellt einen neuen GlobalPrice");
 

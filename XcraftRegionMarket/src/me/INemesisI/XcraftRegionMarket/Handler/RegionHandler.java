@@ -1,6 +1,5 @@
 package me.INemesisI.XcraftRegionMarket.Handler;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,18 +10,16 @@ import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class RegionHandler {
 	XcraftRegionMarket plugin = null;
-	PermissionsPlugin permission = null;
 	WorldGuardPlugin worldguard = null;
 
 	public RegionHandler(XcraftRegionMarket instance) {
 		plugin = instance;
-		permission = plugin.getPermission();
 		worldguard = plugin.getWorldguard();
 	}
 
@@ -69,7 +66,7 @@ public class RegionHandler {
 	public boolean saveRegion(World world) {
 		try {
 			worldguard.getRegionManager(world).save();
-		} catch (IOException e) {
+		} catch (ProtectionDatabaseException e) {
 			e.printStackTrace();
 			return false;
 		}
@@ -127,81 +124,100 @@ public class RegionHandler {
 		return count;
 	}
 
-	public boolean canBuy(String player, String world, String type, ProtectedRegion region, Map<String, Integer> count) {
-		String id = region.getParent().getId();
-		boolean foundparent = false;
+	public boolean canBuy(Player player, String type, ProtectedRegion region, Map<String, Integer> count) {
 		Map<String, Integer> limit = null;
 		if (type.equals("sell") || type.equals("sold")) limit = plugin.configHandler.getSelllimit();
 		else
 			limit = plugin.configHandler.getRentlimit();
-		for (String key : limit.keySet()) {
-			
-			//Global check
-			if (key.equals("global")) { 
-				if (limit.get("global") != -1 && limit.get("global") <= count.get("global")) {
-					plugin.Debug(player + " tried to buy a region but had too many. reason: global limit(" + limit.get("global") + ") count: " + count
-							.get("global"));
-					return false;
-				}
-			}
-			
-			//World check
-			if (key.equals("w:" + world)) { 
-				if (limit.get("w:" + world) != -1 && limit.get("w:" + world) <= count.get("w:" + world)) {
-					plugin.Debug(player + " tried to buy a region but had too many. reason: world limit " + world + "(" + limit
-							.get("w:" + world) + ") count: " + count.get("w:" + world));
-					return false;
-				}
-			}
-			
-			//Parent check
-			if (key.startsWith("p:") && key.contains(id)) { 
-				foundparent = true;
-				key = key.replace("p:", "");
-				int pcount = 0;
-				if (key.contains(", ")) {
-					for (String rkey : key.split(", ")) {
-						if (count.get("p:" + rkey) != null) pcount += count.get("p:" + rkey);
-					}
-				} else
-					pcount = count.get("p:" + key);
-				if (limit.get("p:" + key) <= pcount) {
-					plugin.Debug(player + " tried to buy a region but had too many. reason: parent limit " + key + "(" + limit.get(key) + ") count: " + pcount);
-					return false;
-				}
-			}
-		}
-		
-		//Group check
-		int glimit = -1;
-		if (limit.containsKey("g:default")) glimit = limit.get("g:default");
-		
-		for (String group : plugin.groupHandler.getPlayerGroups(player)) {
-			if (limit.containsKey("g:" + group)) {
-				glimit = -1;
-				if (limit.get("g:" + group) <= count.get("global")) {
-					plugin.Debug(player + " tried to buy a region but had too many. reason: group limit " + group + "(" + limit
-							.get("g:" + group) + ") count: " + count.get("global"));
-					return false;
-				}
-			}
-		}
-		
-		//Group default check
-		if (glimit != -1 && glimit <= count.get("global")) {
-			plugin.Debug(player + " tried to buy a region but had too many. reason: default group limit " + "(" + glimit + ") count: " + count
+
+		// Global check
+		if (limit.get("global") != -1 && limit.get("global") <= count.get("global")) {
+			plugin.Debug(player + " tried to buy a region but had too many. reason: global limit(" + limit.get("global") + ") count: " + count
 					.get("global"));
 			return false;
 		}
-		
-		//Parent default check
-		if (!foundparent && limit.containsKey("p:default") && limit.get("p:default") <= count.get("p:" + id)) {
-			plugin.Debug(player + " tried to buy a region but had too many. reason: default parent limit " + "(" + limit.get("p:default") + ") count: " + count
-					.get("p:" + id));
-			return false;
+
+		String world = player.getWorld().getName();
+		int worldlimit = -2;
+
+		String group = null;
+		int grouplimit = -2;
+
+		String parent = region.getParent().getId();
+		int parentlimit = -2;
+
+		for (String key : limit.keySet()) {
+			if (key.startsWith("w:") && key.contains(world)) {
+				worldlimit = limit.get(key);
+			}
+			if (key.startsWith(":g")) {
+				for (String groupkey : plugin.getPermission().getPlayerGroups(player)) {
+					if (key.contains(groupkey) && limit.get(key) > grouplimit) {
+						grouplimit = limit.get(key);
+						group = groupkey;
+					}
+				}
+			}
+			if (key.startsWith("p:") && key.contains(parent)) {
+				parentlimit = limit.get(key);
+			}
+		}
+
+		// World check
+		if (worldlimit >= 0) {
+			if (worldlimit <= count.get("w:" + world)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: world limit \"" + world + "\"(" + worldlimit + ") count: " + count
+						.get("w:" + world));
+				return false;
+			}
+		} else { // Default world check
+			if (limit.get("w:default") == null) worldlimit = -1;
+			else
+				worldlimit = limit.get("w:default");
+			if (worldlimit >= 0 && worldlimit <= count.get("w:" + world)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: default world limit (" + worldlimit + ") count: " + count
+						.get("w:" + world));
+				return false;
+			}
+		}
+
+		// Group check
+		if (grouplimit >= 0) {
+			if (grouplimit <= count.get("g:" + group)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: group limit \"" + group + "\"(" + grouplimit + ") count: " + count
+						.get("g:" + group));
+				return false;
+			}
+		} else { // Default group check
+			if (limit.get("g:default") == null) grouplimit = -1;
+			else
+				grouplimit = limit.get("g:default");
+			if (grouplimit >= 0 && grouplimit <= count.get("g:" + group)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: default group limit (" + grouplimit + ") count: " + count
+						.get("g:" + group));
+				return false;
+			}
 		}
 		
-		//finished!
+		// Parent check
+		if (parentlimit >= 0) {
+			if (parentlimit <= count.get("p:" + parent)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: parent limit \"" + parent + "\"(" + parentlimit + ") count: " + count
+						.get("p:" + parent));
+				return false;
+			}
+		} else { // Default parent check
+			if (limit.get("p:default") == null) parentlimit = -1;
+			else
+				parentlimit = limit.get("p:default");
+			if (parentlimit >= 0 && parentlimit <= count.get("p:" + parent)) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: default parent limit (" + parentlimit + ") count: " + count
+						.get("p:" + parent));
+				return false;
+			}
+		}
+
+		// finished!
 		plugin.Debug("permitted " + player + " to buy region " + region.getId());
 		return true;
 	}

@@ -12,8 +12,6 @@ import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.nijikokun.register.payment.Method;
-
 public class RentHandler {
 	private XcraftRegionMarket plugin;
 	private ArrayList<Rent> rents = new ArrayList<Rent>();
@@ -34,32 +32,31 @@ public class RentHandler {
 	}
 
 	public void checkRents() {
-		if (!rents.isEmpty())
-			for (Rent rent : rents) {
-				checkRent(rent, getCurrentTime());
-			}
+		if (!rents.isEmpty()) for (Rent rent : rents) {
+			checkRent(rent, getCurrentTime());
+		}
 	}
 
 	private void checkRent(Rent rent, Date time) {
 		if (!time.before(rent.getPaytime())) {
-			Method eco = plugin.getEconomy();
 			Player player = plugin.getServer().getPlayer(rent.getOwner());
-			if (eco.getAccount(rent.getOwner()).hasEnough(rent.getPrice())) {
-				eco.getAccount(rent.getRenter()).add(rent.getPrice());
-				eco.getAccount(rent.getOwner()).subtract(rent.getPrice());
+			if (plugin.getEconomy().getBalance(rent.getOwner()) >= rent.getPrice()) {
+				plugin.getEconomy().depositPlayer(rent.getRenter(), rent.getPrice());
+				plugin.getEconomy().withdrawPlayer(rent.getOwner(), rent.getPrice());
 				if (player != null) {
-					player.sendMessage(plugin.getName() + "Dir wurde deine Miete von " + plugin.getEconomy().format(rent.getPrice()) + " abgezogen");
+					player.sendMessage(plugin.getCName() + "Dir wurde deine Miete von " + plugin.getEconomy().format(rent.getPrice()) + " abgezogen");
 				}
-				plugin.Debug("withdrew "+eco.format(rent.getPrice())+" from "+rent.getOwner()+" for renting region "+rent.getRegion());
+				plugin.Debug("withdrew " + plugin.getEconomy().format(rent.getPrice()) + " from " + rent.getOwner() + " for renting region " + rent
+						.getRegion());
 				rent.setPaytime(getPaytime(time, rent.getIntervall()));
-				plugin.Debug("next paytime: "+date.format(rent.getPaytime()));
+				plugin.Debug("next paytime: " + date.format(rent.getPaytime()));
 				checkRent(rent, time);
 			} else {
 				if (player != null) {
-					player.sendMessage(plugin.getName() + "Du hattest nicht gen�gend Geld um deine Miete zu bezahlen.");
-					player.sendMessage(plugin.getName() + "Die Rechte f�r deine Region wurden dir genommen!");
+					player.sendMessage(plugin.getCName() + "Du hattest nicht genügend Geld um deine Miete für " + rent.getRegion() + " zu bezahlen.");
+					player.sendMessage(plugin.getCName() + "Die Rechte für diese Region wurden dir genommen!");
 				}
-				plugin.Debug(player+" had not enough money to pay his rented region "+rent.getRegion());
+				plugin.Debug(player + " had not enough money to pay his rented region " + rent.getRegion());
 				plugin.regionHandler.removeAllPlayers(plugin.regionHandler.getRegion(rent));
 			}
 		}
@@ -102,8 +99,7 @@ public class RentHandler {
 
 	public Rent getRent(Block block) {
 		for (Rent rent : rents) {
-			if (rent.getBlock().equals(block))
-				return rent;
+			if (rent.getBlock().equals(block)) return rent;
 		}
 		return null;
 	}

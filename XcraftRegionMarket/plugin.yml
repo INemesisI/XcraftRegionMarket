@@ -2,7 +2,7 @@ name: XcraftRegionMarket
 
 main: me.INemesisI.XcraftRegionMarket.XcraftRegionMarket
 
-version: 0.6
+version: 0.7
 
 softdepend: [WorldGuard, Register]
 
@@ -18,7 +18,7 @@ permissions:
             XcraftRegionMarket.Mod: true
             XcraftRegionMarket.GP.Create: true
             XcraftRegionMarket.GP.Edit: true
-        description: Access to Admin stuff
+        description: Access to Admin commands
         default: op
     
     XcraftRegionMarket.Mod:
@@ -34,8 +34,9 @@ permissions:
             XcraftRegionMarket.GP.Use: true
             XcraftRegionMarket.GP.List: true
             XcraftRegionMarket.Edit.*: true
-        description: Access to Mod stuff
+        description: Access to Mod commands
         default: false
+        
     XcraftRegionMarket.Player:
         children:
             XcraftRegionMarket.Buy: true
@@ -43,8 +44,9 @@ permissions:
             XcraftRegionMarket.Sell: true
             XcraftRegionMarket.AddPlayer: true
             XcraftRegionMarket.RemovePlayer: true
-        description: Access to Player stuff
+        description: Access to Player commands
         default: true
+        
     XcraftRegionmarket.Save:
         description: Access to save the data to file
         default: false

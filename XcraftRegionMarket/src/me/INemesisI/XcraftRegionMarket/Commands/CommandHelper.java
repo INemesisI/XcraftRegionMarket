@@ -7,12 +7,14 @@ import java.util.Map;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
+import me.INemesisI.XcraftRegionMarket.Handler.ConfigHandler;
+import me.INemesisI.XcraftRegionMarket.Handler.MarketHandler;
+import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.nijikokun.register.payment.Method;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public abstract class CommandHelper {
@@ -20,18 +22,26 @@ public abstract class CommandHelper {
 	protected CommandSender sender = null;
 	protected Player player = null;
 	protected WorldGuardPlugin worldguard = null;
-	protected Method economy = null;
+	protected Economy economy = null;
 
 	protected CommandHelper(XcraftRegionMarket instance) {
 		plugin = instance;
 	}
 
 	protected void reply(String message) {
-		sender.sendMessage(plugin.getName() + message);
+		sender.sendMessage(plugin.getCName() + message);
 	}
 
 	protected void error(String message) {
 		sender.sendMessage(ChatColor.RED + "Error: " + message);
+	}
+	
+	protected MarketHandler getMarketHandler() {
+		return plugin.marketHandler;
+	}
+	
+	protected ConfigHandler getConfigHandler() {
+		return plugin.configHandler;
 	}
 
 	protected Map<String, MarketSign> getClicked() {

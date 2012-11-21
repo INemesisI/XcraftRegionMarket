@@ -2,8 +2,8 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
-import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
@@ -37,13 +37,13 @@ public class StopCommand extends CommandHelper {
 			return;
 		}
 		if (ms.getType().equals("sell")) {
-			ms.setType("sold");
+			ms.setType(Type.SOLD);
 			plugin.marketHandler.update(ms);
 			reply("Deine Region wird ab jetzt nicht mehr zum Verkauf angeboten");
 		}
 
 		if (ms.getType().equals("rented")) {
-			ms.setType("rent");
+			ms.setType(Type.RENT);
 			plugin.regionHandler.removeOwner(plugin.regionHandler.getRegion(ms), ms.getOwner());
 			plugin.regionHandler.saveRegion(player.getWorld());
 			Rent rent = plugin.rentHandler.getRent(ms.getBlock());

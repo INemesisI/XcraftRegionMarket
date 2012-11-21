@@ -7,10 +7,10 @@ public class MarketSign {
 	private String region;
 	private String owner;
 	private double price;
-	private String type;
+	private Type type;
 	private String intervall;
 
-	public MarketSign(Block block, String region, String type, String owner, double price) {
+	public MarketSign(Block block, String region, Type type, String owner, double price) {
 		this.setBlock(block);
 		this.setRegion(region);
 		this.setOwner(owner);
@@ -19,13 +19,17 @@ public class MarketSign {
 		this.setIntervall("");
 	}
 
-	public MarketSign(Block block, String region, String type, String owner, double price, String intervall) {
+	public MarketSign(Block block, String region, Type type, String owner, double price, String intervall) {
 		this.setBlock(block);
 		this.setRegion(region);
 		this.setOwner(owner);
 		this.setPrice(price);
 		this.setType(type);
 		this.setIntervall(intervall);
+	}
+
+	public enum Type {
+		SELL, SOLD, RENT, RENTED
 	}
 
 	public Block getBlock() {
@@ -60,11 +64,11 @@ public class MarketSign {
 		this.price = price;
 	}
 
-	public String getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 

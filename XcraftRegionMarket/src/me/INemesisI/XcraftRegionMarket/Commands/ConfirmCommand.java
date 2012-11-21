@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
@@ -34,7 +34,7 @@ public class ConfirmCommand extends CommandHelper {
 				return;
 			}
 			if (!ms.getType().equals("sell") && !ms.getType().equals("rent")) return;
-			
+
 			if (ms.getOwner().equals(sender.getName())) {
 				error("Du kannst dein eigenes Grundstück nicht kaufen. Nutze /rm stop um den Verkauf zu stoppen");
 				return;
@@ -44,10 +44,10 @@ public class ConfirmCommand extends CommandHelper {
 				return;
 			}
 			Map<String, Integer> count = new HashMap<String, Integer>();
-			if (ms.getType().equals("sell")) count = plugin.regionHandler.getRegionCount(player, "sold");
+			if (ms.getType().equals("sell")) count = plugin.regionHandler.getRegionCount(player, Type.SOLD);
 			else
-				count = plugin.regionHandler.getRegionCount(player, "rented");
-			
+				count = plugin.regionHandler.getRegionCount(player, Type.RENTED);
+
 			if (!plugin.regionHandler.canBuy(player, ms.getType(), plugin.regionHandler.getRegion(ms), count)) {
 				error("Du hast dein Limit an Regionen erreicht. Du kannst hier nicht noch mehr Regionen besitzen!");
 				return;
@@ -63,10 +63,12 @@ public class ConfirmCommand extends CommandHelper {
 			if (ms.getType().equals("sell") && player.hasPermission("XcraftRegionMarket.Buy")) {
 				// inform the players
 				Player seller = plugin.getServer().getPlayer(ms.getOwner());
-				if (seller != null) seller.sendMessage(plugin.getName() + player.getName() + " hat dein Grundstück " + ms.getRegion() + " für " + economy.format(ms.getPrice()) + " gekauft!");
+				if (seller != null) seller
+						.sendMessage(plugin.getName() + player.getName() + " hat dein Grundstück " + ms.getRegion() + " für " + economy
+								.format(ms.getPrice()) + " gekauft!");
 				reply("Du hast das Grundstück " + ms.getRegion() + " von " + ms.getOwner() + " für " + ms.getPrice() + " gekauft!");
 				// set sign text
-				ms.setType("sold");
+				ms.setType(Type.SOLD);
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				// set group
@@ -81,10 +83,13 @@ public class ConfirmCommand extends CommandHelper {
 				plugin.rentHandler.add(rent);
 				// inform the players
 				Player seller = plugin.getServer().getPlayer(rent.getRenter());
-				if (seller != null) seller.sendMessage(plugin.getName() + ms.getOwner() + " hat dein Grundstück " + ms.getRegion() + " für " + economy.format(ms.getPrice()) + " gemietet!");
-				reply("Du hast das Grundstück " + ms.getRegion() + " von " + rent.getRenter() + " für " + economy.format(ms.getPrice()) + " pro " + ms.getIntervall() + " gemietet!");
+				if (seller != null) seller
+						.sendMessage(plugin.getName() + ms.getOwner() + " hat dein Grundstück " + ms.getRegion() + " für " + economy
+								.format(ms.getPrice()) + " gemietet!");
+				reply("Du hast das Grundstück " + ms.getRegion() + " von " + rent.getRenter() + " für " + economy.format(ms.getPrice()) + " pro " + ms
+						.getIntervall() + " gemietet!");
 				// set sign text
-				ms.setType("rented");
+				ms.setType(Type.RENTED);
 				ms.setOwner(player.getName());
 				plugin.marketHandler.update(ms);
 				plugin.marketHandler.remove(ms);

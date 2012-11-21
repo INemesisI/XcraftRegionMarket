@@ -4,7 +4,7 @@ main: me.INemesisI.XcraftRegionMarket.XcraftRegionMarket
 
 version: 0.7
 
-softdepend: [WorldGuard, Register]
+softdepend: [WorldGuard, Vault]
 
 commands:
   rm:
@@ -67,7 +67,7 @@ permissions:
     XcraftRegionMarket.Sell.Other: 
         children:
             XcraftRegionMarket.Sell: true
-        description: Access to sell other regions with other names
+        description: Access to sell regions with another name
         default: false
         
     XcraftRegionMarket.Delete: 
@@ -90,7 +90,7 @@ permissions:
     XcraftRegionMarket.AddPlayer.Other:
         children:
             XcraftRegionMarket.AddPlayer: true
-        description: Access to add players to the own region
+        description: Access to add players to any region
         default: false
         
     XcraftRegionMarket.RemovePlayer:
@@ -100,7 +100,7 @@ permissions:
     XcraftRegionMarket.RemovePlayer.Other:
         children:
             XcraftRegionMarket.RemovePlayer: true
-        description: Access to add players to the own region
+        description: Access to remove players from any region
         default: false
         
     XcraftRegionMarket.GP.Use: 

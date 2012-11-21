@@ -2,14 +2,14 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
+import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
+import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
-import me.INemesisI.XcraftRegionMarket.MarketSign;
-import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 public class DisposeCommand extends CommandHelper {
 
@@ -49,9 +49,9 @@ public class DisposeCommand extends CommandHelper {
 		// set sign
 		ms.setPrice(price);
 		ms.setOwner(plugin.configHandler.getServerAccount());
-		ms.setType("sell");
+		ms.setType(Type.SELL);
 		getMarketHandler().update(ms);
-		
+
 		reply("Deine Region wurde für " + economy.format(dispose) + " an den Server verkauft!");
 	}
 }

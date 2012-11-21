@@ -9,8 +9,7 @@ public class Rent extends MarketSign {
 	private String renter;
 
 	public Rent(Block block, String region, String account, double price, String intervall) {
-		super(block, region, "rented", account, price, intervall);
-		this.setType("rented");
+		super(block, region, Type.RENTED, account, price, intervall);
 	}
 
 	public Date getPaytime() {

@@ -2,9 +2,9 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
-import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
@@ -32,8 +32,8 @@ public class EditCommands extends CommandHelper {
 		}
 
 		if (Command.equals("settype")) {
-			String type = list.get(0);
-			if (!type.equals("sell") && !type.equals("rent") && !type.equals("sold") && !type.equals("rented")) {
+			Type type = Type.valueOf(list.get(0).toUpperCase());
+			if (type == null) {
 				error("Unbekannter Typ: " + list.get(0));
 				return;
 			}
@@ -50,8 +50,7 @@ public class EditCommands extends CommandHelper {
 
 		if (Command.equals("setregion")) {
 			ProtectedRegion region = plugin.regionHandler.getRegion(ms);
-			if (region == null)
-				error("Es konnte keine Region unter der ID " + list.get(0) + " gefunden werden.");
+			if (region == null) error("Es konnte keine Region unter der ID " + list.get(0) + " gefunden werden.");
 			else {
 				ms.setRegion(list.get(0));
 				plugin.marketHandler.update(ms);
@@ -111,8 +110,7 @@ public class EditCommands extends CommandHelper {
 					hour = Integer.parseInt(t.substring(0, i).trim());
 				}
 			}
-			if (day > 1)
-				intervall = day + " Tage & ";
+			if (day > 1) intervall = day + " Tage & ";
 			else
 				intervall = day + " Tag & ";
 			intervall = intervall + hour + " Std.";

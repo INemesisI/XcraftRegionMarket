@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.MarketSign;
-import me.INemesisI.XcraftRegionMarket.Rent;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.World;
@@ -28,10 +28,8 @@ public class RegionHandler {
 	}
 
 	public void removeAllPlayers(ProtectedRegion region) {
-		for (String owner : region.getOwners().getPlayers())
-			region.getOwners().removePlayer(owner);
-		for (String member : region.getMembers().getPlayers())
-			region.getMembers().removePlayer(member);
+		region.getOwners().getPlayers().clear();
+		region.getMembers().getPlayers().clear();
 	}
 
 	public void setPlayer(ProtectedRegion region, String player) {
@@ -73,75 +71,60 @@ public class RegionHandler {
 		return true;
 	}
 
-	public Map<String, Integer> getRegionCount(Player player, String type) {
+	public Map<String, Integer> getRegionCount(Player player, Type type) {
 		Map<String, Integer> count = new HashMap<String, Integer>();
 		count.put("global", 0);
 		for (World world : plugin.getServer().getWorlds()) {
 			for (ProtectedRegion region : worldguard.getRegionManager(world).getRegions().values()) {
-				if (region.getOwners().getGroups().contains("xrm") && region.getOwners().contains(worldguard.wrapPlayer(player))) {
-					if (type.equals("sold")) {
-						for (MarketSign ms : plugin.marketHandler.getAllMarketSigns()) {
-							if (ms.getRegion().equals(region.getId()) && (ms.getType().equals("sold"))) {
-								if (region.getParent() != null) {
-									String key = "p:" + region.getParent().getId();
-									if (count.get(key) == null) count.put(key, 1);
-									else
-										count.put(key, count.get(key) + 1);
-								}
-
-								String key = "w:" + world.getName();
-								if (count.get(key) == null) count.put(key, 1);
-								else
-									count.put(key, count.get(key) + 1);
-
-								count.put("global", count.get("global") + 1);
-
-							}
+				if (region.getOwners().contains(player.getName())) {
+					if (type == Type.SELL && region.getOwners().getGroups().contains("xrm-sell")) {
+						if (region.getParent() != null) {
+							String key = "p:" + region.getParent().getId();
+							if (count.get(key) == null) count.put(key, 1);
+							else
+								count.put(key, count.get(key) + 1);
 						}
-					} else if (type.equals("rented")) {
-						for (Rent rent : plugin.rentHandler.getRents()) {
-							if (rent.getRegion().equals(region.getId())) {
-								if (region.getParent() != null) {
-									String key = "p:" + region.getParent().getId();
-									if (count.get(key) == null) count.put(key, 0);
-									else
-										count.put(key, count.get(key) + 1);
-								}
+						String key = "w:" + world.getName();
+						if (count.get(key) == null) count.put(key, 1);
+						else
+							count.put(key, count.get(key) + 1);
 
-								String key = "w:" + world.getName();
-								if (count.get(key) == null) count.put(key, 1);
-								else
-									count.put(key, count.get(key) + 1);
+						count.put("global", count.get("global") + 1);
 
-								count.put("global", count.get("global") + 1);
-							}
+					} else if (type == Type.RENT && region.getOwners().getGroups().contains("xrm-rent")) {
+						if (region.getParent() != null) {
+							String key = "p:" + region.getParent().getId();
+							if (count.get(key) == null) count.put(key, 0);
+							else
+								count.put(key, count.get(key) + 1);
 						}
+
+						String key = "w:" + world.getName();
+						if (count.get(key) == null) count.put(key, 1);
+						else
+							count.put(key, count.get(key) + 1);
+
+						count.put("global", count.get("global") + 1);
 					}
+
 				}
 			}
 		}
-		plugin.Debug(player.getName() + "s regioncount: " + count.get("global"));
+		plugin.Debug(player.getName() + "'s regioncount: " + count.get("global"));
 		return count;
 	}
 
-	public boolean canBuy(Player player, String type, ProtectedRegion region, Map<String, Integer> count) {
+	public boolean canBuy(Player player, Type type, ProtectedRegion region, Map<String, Integer> count) {
 		Map<String, Integer> limit = null;
-		if (type.equals("sell") || type.equals("sold")) limit = plugin.configHandler.getSelllimit();
+		if (type == Type.SELL || type == Type.SOLD) limit = plugin.configHandler.getSelllimit();
 		else
 			limit = plugin.configHandler.getRentlimit();
 
-		// Global check
-		if (limit.get("global") != -1 && limit.get("global") <= count.get("global")) {
-			plugin.Debug(player + " tried to buy a region but had too many. reason: global limit(" + limit.get("global") + ") count: " + count
-					.get("global"));
-			return false;
-		}
+		String group = null;
+		int grouplimit = -2;
 
 		String world = player.getWorld().getName();
 		int worldlimit = -2;
-
-		String group = null;
-		int grouplimit = -2;
 
 		String parent = region.getParent().getId();
 		int parentlimit = -2;
@@ -150,11 +133,11 @@ public class RegionHandler {
 			if (key.startsWith("w:") && key.contains(world)) {
 				worldlimit = limit.get(key);
 			}
-			if (key.startsWith(":g")) {
-				for (String groupkey : plugin.getPermission().getPlayerGroups(player)) {
-					if (key.contains(groupkey) && limit.get(key) > grouplimit) {
+			if (key.startsWith("g:")) {
+				for (String playergrp : plugin.getPermission().getPlayerGroups(player)) {
+					if (key.contains(playergrp) && (limit.get(key) < grouplimit || grouplimit < 0)) {
 						grouplimit = limit.get(key);
-						group = groupkey;
+						group = playergrp;
 					}
 				}
 			}
@@ -163,13 +146,27 @@ public class RegionHandler {
 			}
 		}
 
-		// World check
-		if (worldlimit >= 0) {
-			if (worldlimit <= count.get("w:" + world)) {
-				plugin.Debug(player + " tried to buy a region but had too many. reason: world limit \"" + world + "\"(" + worldlimit + ") count: " + count
-						.get("w:" + world));
+		// Group check
+		if (grouplimit >= 0 && grouplimit <= count.get("global")) {
+			plugin.Debug(player + " tried to buy a region but had too many. reason: group limit \"" + group + "\"(" + grouplimit + ") count: " + count
+					.get("g:" + group));
+			return false;
+		} else { // Default group check
+			if (limit.get("g:default") == null) grouplimit = -1;
+			else
+				grouplimit = limit.get("g:default");
+			if (grouplimit >= 0 && grouplimit <= count.get("global")) {
+				plugin.Debug(player + " tried to buy a region but had too many. reason: default group limit (" + grouplimit + ") count: " + count
+						.get("g:" + group));
 				return false;
 			}
+		}
+
+		// World check
+		if (worldlimit >= 0 && worldlimit <= count.get("w:" + world)) {
+			plugin.Debug(player + " tried to buy a region but had too many. reason: world limit \"" + world + "\"(" + worldlimit + ") count: " + count
+					.get("w:" + world));
+			return false;
 		} else { // Default world check
 			if (limit.get("w:default") == null) worldlimit = -1;
 			else
@@ -181,31 +178,11 @@ public class RegionHandler {
 			}
 		}
 
-		// Group check
-		if (grouplimit >= 0) {
-			if (grouplimit <= count.get("g:" + group)) {
-				plugin.Debug(player + " tried to buy a region but had too many. reason: group limit \"" + group + "\"(" + grouplimit + ") count: " + count
-						.get("g:" + group));
-				return false;
-			}
-		} else { // Default group check
-			if (limit.get("g:default") == null) grouplimit = -1;
-			else
-				grouplimit = limit.get("g:default");
-			if (grouplimit >= 0 && grouplimit <= count.get("g:" + group)) {
-				plugin.Debug(player + " tried to buy a region but had too many. reason: default group limit (" + grouplimit + ") count: " + count
-						.get("g:" + group));
-				return false;
-			}
-		}
-		
 		// Parent check
-		if (parentlimit >= 0) {
-			if (parentlimit <= count.get("p:" + parent)) {
-				plugin.Debug(player + " tried to buy a region but had too many. reason: parent limit \"" + parent + "\"(" + parentlimit + ") count: " + count
-						.get("p:" + parent));
-				return false;
-			}
+		if (parentlimit >= 0 && parentlimit <= count.get("p:" + parent)) {
+			plugin.Debug(player + " tried to buy a region but had too many. reason: parent limit \"" + parent + "\"(" + parentlimit + ") count: " + count
+					.get("p:" + parent));
+			return false;
 		} else { // Default parent check
 			if (limit.get("p:default") == null) parentlimit = -1;
 			else

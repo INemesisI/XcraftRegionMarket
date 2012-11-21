@@ -7,13 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
-import me.INemesisI.XcraftRegionMarket.Commands.ConfirmCommand;
-import me.INemesisI.XcraftRegionMarket.Commands.EditCommands;
-import me.INemesisI.XcraftRegionMarket.Commands.GPCommands;
-import me.INemesisI.XcraftRegionMarket.Commands.PlayerCommands;
-import me.INemesisI.XcraftRegionMarket.Commands.PluginCommands;
-import me.INemesisI.XcraftRegionMarket.Commands.SellCommand;
-import me.INemesisI.XcraftRegionMarket.Commands.StopCommand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -30,21 +23,21 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 		CommandHelper ch = new PluginCommands(plugin);
 		addCommand("save", "Save", ch);
 		addCommand("reload", "Reload", ch);
-		
+
 		addCommand("confirm", "Buy", new ConfirmCommand(plugin));
 		addCommand("sell", "Sell", new SellCommand(plugin));
 		addCommand("stop", "Sell", new StopCommand(plugin));
 		addCommand("dispose", "Dispose", new DisposeCommand(plugin));
-		
+
 		ch = new PlayerCommands(plugin);
 		addCommand("addplayer", "AddPlayer", ch);
 		addCommand("removeplayer", "RemovePlayer", ch);
-		
+
 		ch = new GPCommands(plugin);
 		addCommand("creategp", "GP.Create", ch);
 		addCommand("setgp", "GP.Edit", ch);
 		addCommand("listgp", "GP.List", ch);
-		
+
 		ch = new EditCommands(plugin);
 		addCommand("settype", "Edit.Type", ch);
 		addCommand("setregion", "Edit.Region", ch);
@@ -52,18 +45,18 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 		addCommand("setowner", "Edit.Account", ch);
 		addCommand("setintervall", "Edit.Intervall", ch);
 		addCommand("setrenter", "Edit.Renter", ch);
-		
+
+		addCommand("limit", "Edit.Limit", new LimitCommands(plugin));
+
 	}
-	
+
 	private void addCommand(String command, String permode, CommandHelper commandclass) {
 		permNodes.put(command, permode);
 		subcommands.put(command, commandclass);
 	}
 
-
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd,
-			String commandLabel, String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		this.sender = sender;
 		player = (sender instanceof Player) ? (Player) sender : null;
 
@@ -74,7 +67,8 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 			return true;
 		} else if (subcommands.get(args[0].toLowerCase()) == null) {
 			error("Unkown command: " + args[0].toLowerCase());
-		} else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes.get(args[0])))) {
+		} else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes
+				.get(args[0])))) {
 			error("You do not have access to that command!");
 			return true;
 		}
@@ -83,7 +77,8 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 			List<String> largs = Arrays.asList(args);
 			String Command = largs.get(0);
 			largs = largs.subList(1, largs.size());
-			(subcommands.get(args[0].toLowerCase())).execute(sender, Command, (largs.size() > 0 ? largs.subList(0, largs.size()) : new ArrayList<String>()));
+			(subcommands.get(args[0].toLowerCase())).execute(sender, Command, (largs.size() > 0 ? largs.subList(0, largs.size())
+					: new ArrayList<String>()));
 		}
 		return true;
 	}
@@ -94,13 +89,12 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 	}
 
 	public void PrintHelp(String cmd) {
-		sender.sendMessage(ChatColor.BLUE + "["
-				+ plugin.getDescription().getFullName() + "] by INemesisI");
+		sender.sendMessage(ChatColor.BLUE + "[" + plugin.getDescription().getFullName() + "] by INemesisI");
 		print(cmd, "confirm", "", "Bestätigt das Kaufen einer Region");
 		print(cmd, "sell", "<preis>", "Bestätigt das verkaufen einer Region");
 		print(cmd, "stop", "", "Stopt den Verkauf einer Region");
 		print(cmd, "dispose", "", "Verkauft eine Region an den Server");
-		
+
 		print(cmd, "addplayer", "<name>", "Fügt jmd. zu einer Region hinzu");
 		print(cmd, "removeplayer", "<name>", "Entfernt jmd. von einer Region");
 

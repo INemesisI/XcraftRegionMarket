@@ -2,9 +2,9 @@ package me.INemesisI.XcraftRegionMarket.Commands;
 
 import java.util.List;
 
-import me.INemesisI.XcraftRegionMarket.Commands.CommandHelper;
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.command.CommandSender;
@@ -36,7 +36,7 @@ public class SellCommand extends CommandHelper {
 			reply("Die Region muss gekauft worden sein.");
 			return;
 		}
-		
+
 		double price = 0;
 		if (!list.get(0).matches("\\d*")) {
 			Globalprice gp = plugin.marketHandler.getGlobalPrice(list.get(0));
@@ -51,7 +51,7 @@ public class SellCommand extends CommandHelper {
 			price = Double.parseDouble(list.get(0));
 			ms.setPrice(price);
 		}
-		ms.setType("sell");
+		ms.setType(Type.SELL);
 		plugin.marketHandler.update(ms);
 		reply("Deine Region wird ab jetzt für " + economy.format(price) + " angeboten");
 	}

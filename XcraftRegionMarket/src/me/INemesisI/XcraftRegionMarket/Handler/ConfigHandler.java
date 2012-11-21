@@ -13,6 +13,7 @@ import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
+import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
 import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
@@ -139,7 +140,7 @@ public class ConfigHandler {
 		if (cs != null && !cs.getKeys(true).contains("MarketSigns")) {
 			loadold = false;
 			for (String key : cs.getKeys(false)) {
-				mh.add(new Globalprice(key, cs.getInt(key)));
+				mh.addGlobalPrice(new Globalprice(key, cs.getInt(key)));
 			}
 		}
 
@@ -176,7 +177,7 @@ public class ConfigHandler {
 		ConfigurationSection cs = datacfg.getConfigurationSection("GlobalPrices");
 		if (cs.getKeys(true).contains("MarketSigns")) {
 			for (String key : cs.getKeys(false)) {
-				plugin.marketHandler.add(new Globalprice(key, cs.getInt(key)));
+				plugin.marketHandler.addGlobalPrice(new Globalprice(key, cs.getInt(key)));
 				ArrayList<MarketSign> ms = new ArrayList<MarketSign>();
 				for (String region : cs.getStringList(key + ".MarketSigns")) {
 					for (MarketSign sign : mh.getMarketSigns()) {
@@ -237,29 +238,26 @@ public class ConfigHandler {
 		if ((block.getType().equals(Material.SIGN_POST) || block.getType().equals(Material.WALL_SIGN))) {
 			String type = sign.getString("Type");
 			MarketSign ms = null;
-			if (type.equals("sell") || type.equals("sold")) { // [sell] and
-																// [sold]
-				ms = new MarketSign(block, region, type, sign.getString("Account"), sign.getDouble("Price"));
-				mh.add(ms);
-			} else if (type.equals("rent")) { // [rent]
-				ms = new MarketSign(block, region, type, sign.getString("Account"), sign.getDouble("Price"), sign.getString("Intervall"));
-				mh.add(ms);
-			} else if (type.equals("rented")) { // [rented]
+			if (type.equals("RENTED")) { // [rented]
 				Date paytime = null;
 				try {
 					paytime = date.parse(sign.getString("Paytime"));
 				} catch (ParseException e) {
+					e.printStackTrace();
 				}
 				Rent rent = new Rent(block, region, sign.getString("Account"), sign.getDouble("Price"), sign.getString("Intervall"));
 				rent.setPaytime(paytime);
 				rent.setRenter(sign.getString("Renter"));
 				plugin.rentHandler.add(rent);
 				ms = rent;
+			} else {
+				ms = new MarketSign(block, region, Type.valueOf(type), sign.getString("Account"), sign.getDouble("Price"), sign
+						.getString("Intervall"));
+				mh.add(ms);
 			}
-			if (ms == null) return false;
 			// GlobalPrice load for that sign
 			String id = sign.getString("GP");
-			if (id != null && ms != null) {
+			if (id != null) {
 				Globalprice gp = plugin.marketHandler.getGlobalPrice(id);
 				gp.addSign(ms);
 				// Update Sign

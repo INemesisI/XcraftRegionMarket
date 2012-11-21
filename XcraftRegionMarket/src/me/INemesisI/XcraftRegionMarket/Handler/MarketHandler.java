@@ -6,7 +6,6 @@ import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.Globalprice;
 import me.INemesisI.XcraftRegionMarket.MarketSign;
-import me.INemesisI.XcraftRegionMarket.Rent;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.block.Block;
@@ -23,7 +22,7 @@ public class MarketHandler {
 	}
 
 	public ArrayList<String> update(MarketSign ms) {
-		ArrayList<String> lines = getLines(ms);
+		ArrayList<String> lines = getFormattedLines(ms);
 		Sign sign = (Sign) ms.getBlock().getState();
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, lines.get(i));
@@ -42,8 +41,7 @@ public class MarketHandler {
 
 	public MarketSign getMarketSign(Block block) {
 		for (MarketSign sign : signs) {
-			if (sign.getBlock().equals(block))
-				return sign;
+			if (sign.getBlock().equals(block)) return sign;
 		}
 		return null;
 	}
@@ -54,11 +52,8 @@ public class MarketHandler {
 
 	public ArrayList<MarketSign> getAllMarketSigns() {
 		ArrayList<MarketSign> list = new ArrayList<MarketSign>();
-		for (MarketSign ms : signs)
-			list.add(ms);
-		for (Rent rent : plugin.rentHandler.getRents()) {
-			list.add(rent);
-		}
+		list.addAll(signs);
+		list.addAll(plugin.rentHandler.getRents());
 		return signs;
 	}
 
@@ -66,30 +61,28 @@ public class MarketHandler {
 		this.signs = signs;
 	}
 
-	public void add(Globalprice GP) {
+	public void addGlobalPrice(Globalprice GP) {
 		globalprices.add(GP);
 	}
 
-	public boolean remove(Globalprice GP) {
+	public boolean removeGlobalPrice(Globalprice GP) {
 		return globalprices.remove(GP);
 	}
 
 	public Globalprice getGlobalPrice(String id) {
 		for (Globalprice gid : globalprices) {
-			if (gid.getID().equals(id))
-				return gid;
+			if (gid.getID().equals(id)) return gid;
 		}
 		return null;
 	}
 
 	public Globalprice getGlobalPrice(MarketSign ms) {
 		for (Globalprice gid : globalprices) {
-			if (gid.getMarketSigns().contains(ms))
-				return gid;
+			if (gid.getMarketSigns().contains(ms)) return gid;
 		}
 		return null;
 	}
-	
+
 	public ArrayList<Globalprice> getGlobalPrices() {
 		return globalprices;
 	}
@@ -106,33 +99,29 @@ public class MarketHandler {
 		this.layouts = layout;
 	}
 
-	private ArrayList<String> getLines(MarketSign sign) {
-		ArrayList<String> layout = layouts.get(sign.getType());
-		ArrayList<String> repl = new ArrayList<String>();
-		repl.ensureCapacity(3);
+	private ArrayList<String> getFormattedLines(MarketSign sign) {
+		ArrayList<String> layout = layouts.get(sign.getType().toString());
+		ArrayList<String> repl = new ArrayList<String>(3);
 		String intervall = sign.getIntervall();
 		String region = sign.getRegion();
 		// format intervall
 		if (!intervall.isEmpty()) {
 			String[] split = intervall.split(" & ");
-			if (split[0].substring(0, 1).equals("0"))
-				intervall = split[1];
-			if (split[1].substring(0, 1).equals("0"))
-				intervall = split[0];
+			if (split[0].substring(0, 1).equals("0")) intervall = split[1];
+			if (split[1].substring(0, 1).equals("0")) intervall = split[0];
 		}
 		// format region
 		Map<String, String> format = plugin.configHandler.getRegionformat();
-		region = Character.toUpperCase(region.charAt(0))
-				+ region.substring(1, region.length());
+		region = Character.toUpperCase(region.charAt(0)) + region.substring(1, region.length());
 		for (String key : format.keySet()) {
 			region = region.replace(key, format.get(key));
 		}
-		for (String line : layout) {
-			line = line.replaceAll("&([a-f0-9])", "\u00A7$1");
+		// format sign
+		for (String line : layout) { // TODO: type?!
+			line = line.replaceAll("&([a-f0-9])", "\u00A7$1"); // Color code
 			line = line.replace("<region>", region);
 			line = line.replace("<account>", "" + sign.getOwner());
-			line = line.replace("<price>",
-					"" + plugin.getEconomy().format(sign.getPrice()));
+			line = line.replace("<price>", "" + plugin.getEconomy().format(sign.getPrice()));
 			line = line.replace("<intervall>", intervall);
 			repl.add(line);
 		}

@@ -9,7 +9,7 @@ public class Globalprice {
 	String ID;
 	int price;
 	ArrayList<MarketSign> marketsigns = new ArrayList<MarketSign>();
-	
+
 	public Globalprice(String ID, int price) {
 		this.ID = ID;
 		this.price = price;
@@ -27,12 +27,10 @@ public class Globalprice {
 		max.setY(min.getY());
 		int x = 0;
 		int z = 0;
-		if (max.getX() > min.getX())
-			x = (int) (max.getX() - min.getX()) + 1;
+		if (max.getX() > min.getX()) x = (int) (max.getX() - min.getX()) + 1;
 		else
 			x = (int) (min.getX() - max.getX()) + 1;
-		if (max.getZ() > min.getZ())
-			z = (int) (max.getZ() - min.getZ()) + 1;
+		if (max.getZ() > min.getZ()) z = (int) (max.getZ() - min.getZ()) + 1;
 		else
 			z = (int) (min.getZ() - max.getZ()) + 1;
 		return (x * z) * price;

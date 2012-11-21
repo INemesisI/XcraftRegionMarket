@@ -35,11 +35,11 @@ public abstract class CommandHelper {
 	protected void error(String message) {
 		sender.sendMessage(ChatColor.RED + "Error: " + message);
 	}
-	
+
 	protected MarketHandler getMarketHandler() {
 		return plugin.marketHandler;
 	}
-	
+
 	protected ConfigHandler getConfigHandler() {
 		return plugin.configHandler;
 	}
@@ -57,14 +57,12 @@ public abstract class CommandHelper {
 	}
 
 	protected void addGP(String id, int price) {
-		plugin.marketHandler.add(new Globalprice(id, price));
+		plugin.marketHandler.addGlobalPrice(new Globalprice(id, price));
 	}
 
 	protected boolean delGP(String id) {
-		return plugin.marketHandler.remove(plugin.marketHandler
-				.getGlobalPrice(id));
+		return plugin.marketHandler.removeGlobalPrice(plugin.marketHandler.getGlobalPrice(id));
 	}
 
-	protected abstract void execute(CommandSender sender, String Command,
-			List<String> list);
+	protected abstract void execute(CommandSender sender, String Command, List<String> list);
 }

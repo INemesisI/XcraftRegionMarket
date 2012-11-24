@@ -2,7 +2,7 @@ name: XcraftRegionMarket
 
 main: me.INemesisI.XcraftRegionMarket.XcraftRegionMarket
 
-version: 0.7
+version: 0.8
 
 softdepend: [WorldGuard, Vault]
 
@@ -24,8 +24,9 @@ permissions:
     XcraftRegionMarket.Mod:
         children:
             XcraftRegionMarket.Player: true
-            XcraftRegionMarket.Sell.Other: true
-            XcraftRegionMarket.Delete.Other: true
+            XcraftRegionMarket.Sell.All: true
+            XcraftRegionMarket.Rent.All: true
+            XcraftRegionMarket.Delete.All: true
             XcraftRegionMarket.Create: true
             XcraftRegionMarket.Buy: true
             XcraftRegionMarket.Rent: true
@@ -57,23 +58,27 @@ permissions:
     XcraftRegionMarket.Buy:
         description: Access to buy regions
         default: false
+        
     XcraftRegionMarket.Rent:
         description: Access to rent regions
+        default: false
+    XcraftRegionMarket.Rent.All:
+        description: Access to rent all regions
         default: false
         
     XcraftRegionMarket.Sell:
         description: Access to sell regions
         default: false
-    XcraftRegionMarket.Sell.Other: 
+    XcraftRegionMarket.Sell.All: 
         children:
             XcraftRegionMarket.Sell: true
-        description: Access to sell regions with another name
+        description: Access to sell all regions
         default: false
         
     XcraftRegionMarket.Delete: 
         description: Access to delete own regions
         default: false
-    XcraftRegionMarket.Delete.Other: 
+    XcraftRegionMarket.Delete.All: 
         children:
             XcraftRegionMarket.Delete: true
         description: Access to delete other regions with other names

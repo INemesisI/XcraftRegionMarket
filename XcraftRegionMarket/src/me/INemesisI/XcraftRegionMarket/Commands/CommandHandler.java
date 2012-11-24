@@ -58,17 +58,15 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		this.sender = sender;
-		player = (sender instanceof Player) ? (Player) sender : null;
+		player = sender instanceof Player ? (Player) sender : null;
 
 		if (player == null) {
 			// TODO: Console Stuff
 		} else if (args.length == 0 || args[0].equals("help")) {
 			PrintHelp(cmd.getName());
 			return true;
-		} else if (subcommands.get(args[0].toLowerCase()) == null) {
-			error("Unkown command: " + args[0].toLowerCase());
-		} else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes
-				.get(args[0])))) {
+		} else if (subcommands.get(args[0].toLowerCase()) == null) error("Unkown command: " + args[0].toLowerCase());
+		else if (!(permNodes.get(args[0]).isEmpty() || player.hasPermission(plugin.getDescription().getName() + "." + permNodes.get(args[0])))) {
 			error("You do not have access to that command!");
 			return true;
 		}
@@ -77,8 +75,8 @@ public class CommandHandler extends CommandHelper implements CommandExecutor {
 			List<String> largs = Arrays.asList(args);
 			String Command = largs.get(0);
 			largs = largs.subList(1, largs.size());
-			(subcommands.get(args[0].toLowerCase())).execute(sender, Command, (largs.size() > 0 ? largs.subList(0, largs.size())
-					: new ArrayList<String>()));
+			subcommands.get(args[0].toLowerCase()).execute(sender, Command,
+					largs.size() > 0 ? largs.subList(0, largs.size()) : new ArrayList<String>());
 		}
 		return true;
 	}

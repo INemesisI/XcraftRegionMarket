@@ -8,8 +8,6 @@ import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
 public class PlayerCommands extends CommandHelper {
 
 	public PlayerCommands(XcraftRegionMarket instance) {
@@ -18,13 +16,11 @@ public class PlayerCommands extends CommandHelper {
 
 	@Override
 	public void execute(CommandSender sender, String Command, List<String> list) {
-		this.sender = sender;
-		this.player = (Player) sender;
-		this.worldguard = plugin.getWorldguard();
+		init(sender);
 
 		MarketSign ms = getClicked().get(sender.getName());
 		if (ms == null) {
-			error("Du musst erst auf ein Schild klicken!");
+			error("Du musst erst ein MarketSign auswählen!");
 			return;
 		}
 		if (!ms.getOwner().equals(player.getName()) && !player.hasPermission("XcraftRegionMarket.AddPlayer.Other")) {
@@ -36,16 +32,15 @@ public class PlayerCommands extends CommandHelper {
 			error("Der Spieler muss dafür online sein!");
 			return;
 		}
-		ProtectedRegion region = plugin.regionHandler.getRegion(ms);
 
 		if (Command.equals("addplayer")) {
-			plugin.regionHandler.addMember(region, member.getName());
+			plugin.regionHandler.addMember(ms.getRegion(), member.getName());
 			plugin.regionHandler.saveRegion(player.getWorld());
 			reply(member.getName() + " wurde zu deiner Region hinzugefügt");
 		}
 
 		if (Command.equals("removeplayer")) {
-			plugin.regionHandler.removeMember(region, member.getName());
+			plugin.regionHandler.removeMember(ms.getRegion(), member.getName());
 			plugin.regionHandler.saveRegion(player.getWorld());
 			reply(member.getName() + " wurde von deiner Region gel�scht");
 		}

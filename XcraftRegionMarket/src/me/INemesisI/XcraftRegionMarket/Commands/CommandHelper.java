@@ -26,6 +26,13 @@ public abstract class CommandHelper {
 
 	protected CommandHelper(XcraftRegionMarket instance) {
 		plugin = instance;
+		worldguard = plugin.getWorldguard();
+		economy = plugin.getEconomy();
+	}
+
+	protected void init(CommandSender sender) {
+		this.sender = sender;
+		player = (Player) sender;
 	}
 
 	protected void reply(String message) {

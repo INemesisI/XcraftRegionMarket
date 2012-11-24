@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import me.INemesisI.XcraftRegionMarket.Globalprice;
-import me.INemesisI.XcraftRegionMarket.MarketSign;
 import me.INemesisI.XcraftRegionMarket.MarketSign.Type;
-import me.INemesisI.XcraftRegionMarket.Rent;
+import me.INemesisI.XcraftRegionMarket.RentSign;
+import me.INemesisI.XcraftRegionMarket.SellSign;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.Material;
@@ -23,6 +23,8 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 // Daten- und Configverwaltung
 
@@ -68,26 +70,20 @@ public class ConfigHandler {
 		setServerAccount(config.getString("ServerAccount"));
 
 		selllimit.put("global", config.getInt("Limits.sell.global", -1));
-		for (String key : config.getConfigurationSection("Limits.sell.worlds").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.sell.worlds").getKeys(false))
 			selllimit.put("w:" + key, config.getInt("Limits.sell.worlds." + key));
-		}
-		for (String key : config.getConfigurationSection("Limits.sell.groups").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.sell.groups").getKeys(false))
 			selllimit.put("g:" + key, config.getInt("Limits.sell.groups." + key));
-		}
-		for (String key : config.getConfigurationSection("Limits.sell.parents").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.sell.parents").getKeys(false))
 			selllimit.put("p:" + key, config.getInt("Limits.sell.parents." + key));
-		}
 
 		rentlimit.put("global", config.getInt("Limits.rent.global", -1));
-		for (String key : config.getConfigurationSection("Limits.rent.worlds").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.rent.worlds").getKeys(false))
 			rentlimit.put("w:" + key, config.getInt("Limits.rent.worlds." + key));
-		}
-		for (String key : config.getConfigurationSection("Limits.rent.groups").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.rent.groups").getKeys(false))
 			rentlimit.put("g:" + key, config.getInt("Limits.rent.groups." + key));
-		}
-		for (String key : config.getConfigurationSection("Limits.rent.parents").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Limits.rent.parents").getKeys(false))
 			selllimit.put("p:" + key, config.getInt("Limits.rent.parents." + key));
-		}
 		// Groupmanager
 		ignoredgroups.addAll(Arrays.asList(config.getString("GroupManager.ignore").split(", ")));
 		for (String group : config.getConfigurationSection("GroupManager.sell").getKeys(false)) {
@@ -107,9 +103,8 @@ public class ConfigHandler {
 			sellgroups.put(group, list);
 		}
 		// Regionformat
-		for (String key : config.getConfigurationSection("Format.Region").getKeys(false)) {
+		for (String key : config.getConfigurationSection("Format.Region").getKeys(false))
 			regionformat.put(key, config.getString("Format.Region." + key));
-		}
 		// Layout load
 		Map<String, ArrayList<String>> layout = new HashMap<String, ArrayList<String>>();
 		cs = config.getConfigurationSection("Layout");
@@ -124,149 +119,89 @@ public class ConfigHandler {
 		setMax(config.getInt("Dispose.max", 0));
 
 		dataFile = new File(plugin.getDataFolder(), "Data.yml");
-		if (!dataFile.exists()) {
-			return;
-		}
+		if (!dataFile.exists()) return;
 		datacfg = YamlConfiguration.loadConfiguration(dataFile);
 		if (!dataFile.exists()) try {
 			dataFile.createNewFile();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		boolean loadold = true;
 		// GlobalPrice load
 		cs = datacfg.getConfigurationSection("GlobalPrices");
-		if (cs == null) loadold = false;
-		if (cs != null && !cs.getKeys(true).contains("MarketSigns")) {
-			loadold = false;
-			for (String key : cs.getKeys(false)) {
-				mh.addGlobalPrice(new Globalprice(key, cs.getInt(key)));
-			}
-		}
+		for (String key : cs.getKeys(false))
+			mh.addGlobalPrice(new Globalprice(key, cs.getInt(key)));
 
 		// Signload
 		cs = datacfg.getConfigurationSection("MarketSigns");
-		if (cs != null) {
-			for (String worldkey : cs.getKeys(false)) {
-				ConfigurationSection regioncs = datacfg.getConfigurationSection("MarketSigns." + worldkey);
-				World world = plugin.getServer().getWorld(worldkey);
-				if (world == null) {
-					plugin.log.warning(plugin.getCName() + "World " + worldkey + " was not loaded. Regions where not loaded aswell!");
-					continue;
-				}
-				for (String regionkey : regioncs.getKeys(false)) {
-					loadSign(world, regionkey);
-				}
+		if (cs != null) for (String worldkey : cs.getKeys(false)) {
+			ConfigurationSection regioncs = datacfg.getConfigurationSection("MarketSigns." + worldkey);
+			World world = plugin.getServer().getWorld(worldkey);
+			if (world == null) continue;
+
+			for (String regionkey : regioncs.getKeys(false)) {
+				ProtectedRegion region = plugin.regionHandler.getRegion(world, regionkey);
+				if (region != null) loadSign(world, region);
+				else plugin.log
+						.warning(plugin.getCName() + "Could not find region " + regionkey + " in world " + worldkey + ". The corresponding MarketSign was not loaded!");
 			}
 		}
-
-		// load old if needed
-
-		if (loadold) {
-			mh.setGlobalPrices(loadOld());
-		}
-
-		try {
-			datacfg.save(dataFile);
-		} catch (IOException e) {
-		}
-	}
-
-	private ArrayList<Globalprice> loadOld() {
-		ArrayList<Globalprice> gps = new ArrayList<Globalprice>();
-		ConfigurationSection cs = datacfg.getConfigurationSection("GlobalPrices");
-		if (cs.getKeys(true).contains("MarketSigns")) {
-			for (String key : cs.getKeys(false)) {
-				plugin.marketHandler.addGlobalPrice(new Globalprice(key, cs.getInt(key)));
-				ArrayList<MarketSign> ms = new ArrayList<MarketSign>();
-				for (String region : cs.getStringList(key + ".MarketSigns")) {
-					for (MarketSign sign : mh.getMarketSigns()) {
-						if (sign.getRegion().equals(region)) ms.add(sign);
-					}
-				}
-				gps.add(new Globalprice(key, cs.getInt(key + ".Price"), ms));
-			}
-		}
-		return gps;
 	}
 
 	public void save() {
-		if (datacfg != null) {
-			for (String key : datacfg.getKeys(false))
-				datacfg.set(key, null);
-		}
-		for (MarketSign sign : mh.getMarketSigns()) {
+		if (datacfg != null) for (String key : datacfg.getKeys(false))
+			datacfg.set(key, null);
+		for (SellSign sign : mh.getSellSigns()) {
 			Block b = sign.getBlock();
-			String key = "MarketSigns." + b.getWorld().getName() + "." + sign.getRegion();
+			String key = "SellSigns." + b.getWorld().getName() + "." + sign.getRegion().getId();
 			datacfg.set(key + ".Type", sign.getType());
-			if (sign.getType().equals("rent")) datacfg.set(key + ".Intervall", sign.getIntervall());
-			datacfg.set(key + ".Price", sign.getPrice());
 			datacfg.set(key + ".Account", sign.getOwner());
+			datacfg.set(key + ".Price", sign.getPrice());
+			datacfg.set(key + ".GP", sign.getGp().getID());
 			datacfg.set(key + ".X", b.getX());
 			datacfg.set(key + ".Y", b.getY());
 			datacfg.set(key + ".Z", b.getZ());
 		}
-		for (Rent rent : plugin.rentHandler.getRents()) {
-			Block b = rent.getBlock();
-			String key = "MarketSigns." + b.getWorld().getName() + "." + rent.getRegion();
-			datacfg.set(key + ".Type", rent.getType());
-			datacfg.set(key + ".Intervall", rent.getIntervall());
-			datacfg.set(key + ".Paytime", date.format(rent.getPaytime()));
-			datacfg.set(key + ".Renter", rent.getRenter());
-			datacfg.set(key + ".Price", rent.getPrice());
-			datacfg.set(key + ".Account", rent.getOwner());
+		for (RentSign sign : mh.getRentSigns()) {
+			Block b = sign.getBlock();
+			String key = "RentSigns." + b.getWorld().getName() + "." + sign.getRegion().getId();
+			datacfg.set(key + ".Type", sign.getType());
+			datacfg.set(key + ".Account", sign.getOwner());
+			datacfg.set(key + ".Price", sign.getPrice());
+			datacfg.set(key + ".Renter", sign.getRenter());
+			datacfg.set(key + ".GP", sign.getGp().getID());
+			datacfg.set(key + ".Intervall", sign.getIntervall());
+			datacfg.set(key + ".Paytime", date.format(sign.getPaytime()));
 			datacfg.set(key + ".X", b.getX());
 			datacfg.set(key + ".Y", b.getY());
 			datacfg.set(key + ".Z", b.getZ());
 		}
-		for (Globalprice gp : mh.getGlobalPrices()) {
-			for (MarketSign ms : gp.getMarketSigns()) {
-				String key = "MarketSigns." + ms.getBlock().getWorld().getName() + "." + ms.getRegion();
-				datacfg.set(key + ".GP", gp.getID());
-			}
+		for (Globalprice gp : mh.getGlobalPrices())
 			datacfg.set("GlobalPrices." + gp.getID(), gp.getPrice());
-		}
 		try {
 			datacfg.save(dataFile);
 		} catch (IOException e) {
 		};
 	}
 
-	public boolean loadSign(World world, String region) {
-		ConfigurationSection sign = datacfg.getConfigurationSection("MarketSigns." + world.getName() + "." + region);
+	public boolean loadSign(World world, ProtectedRegion region) {
+		ConfigurationSection sign = datacfg.getConfigurationSection("SellSigns." + world.getName() + "." + region);
+		if (sign == null) sign = datacfg.getConfigurationSection("RentSigns." + world.getName() + "." + region);
 		Block block = world.getBlockAt(sign.getInt("X"), sign.getInt("Y"), sign.getInt("Z"));
-		if ((block.getType().equals(Material.SIGN_POST) || block.getType().equals(Material.WALL_SIGN))) {
-			String type = sign.getString("Type");
-			MarketSign ms = null;
-			if (type.equals("RENTED")) { // [rented]
+		if (block.getType().equals(Material.SIGN_POST) || block.getType().equals(Material.WALL_SIGN)) {
+			Type type = Type.valueOf(sign.getString("Type"));
+			if (type == Type.RENTING || type == Type.RENTED) { // [rented]
 				Date paytime = null;
 				try {
 					paytime = date.parse(sign.getString("Paytime"));
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				Rent rent = new Rent(block, region, sign.getString("Account"), sign.getDouble("Price"), sign.getString("Intervall"));
-				rent.setPaytime(paytime);
-				rent.setRenter(sign.getString("Renter"));
-				plugin.rentHandler.add(rent);
-				ms = rent;
-			} else {
-				ms = new MarketSign(block, region, Type.valueOf(type), sign.getString("Account"), sign.getDouble("Price"), sign
-						.getString("Intervall"));
-				mh.add(ms);
-			}
-			// GlobalPrice load for that sign
-			String id = sign.getString("GP");
-			if (id != null) {
-				Globalprice gp = plugin.marketHandler.getGlobalPrice(id);
-				gp.addSign(ms);
-				// Update Sign
-				if (ms.getOwner().equalsIgnoreCase(getServerAccount())) ms.setPrice(gp.getPrice(plugin.regionHandler.getRegion(ms)));
-				mh.update(ms);
-			}
+				mh.add(new RentSign(block, region, type, sign.getString("Account"), sign.getDouble("Price"), mh.getGlobalPrice(sign.getString("GP")),
+						sign.getString("Renter"), sign.getString("Intervall"), paytime));
+			} else if (type == Type.SELLING || type == Type.SOLD) mh.add(new SellSign(block, region, type, sign.getString("Account"), sign
+					.getDouble("Price"), mh.getGlobalPrice(sign.getString("GP"))));
 		} else {
-			plugin.log
-					.warning(plugin.getCName() + "Could not find a sign block for region " + region + ". The marketsign has not been loaded!");
+			plugin.log.warning(plugin.getCName() + "Could not find a sign block for region " + region + ". The marketsign has not been loaded!");
 			return false;
 		}
 		return true;
@@ -346,7 +281,7 @@ public class ConfigHandler {
 	}
 
 	public double getDispose(double price) {
-		double p = ((double) getDispose() / 100) * price;
+		double p = (double) getDispose() / 100 * price;
 		if (getMax() <= 0 && p > getMax()) p = getMax();
 		return p;
 	}

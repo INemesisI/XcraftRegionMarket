@@ -6,7 +6,6 @@ import java.util.Map;
 import me.INemesisI.XcraftRegionMarket.XcraftRegionMarket;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class LimitCommands extends CommandHelper {
 
@@ -16,8 +15,7 @@ public class LimitCommands extends CommandHelper {
 
 	@Override
 	protected void execute(CommandSender sender, String Command, List<String> list) {
-		this.sender = sender;
-		this.player = (Player) sender;
+		init(sender);
 
 		// /rm limit list <sell/rent>
 		// /rm limit <region> <sell/rent> <int>
@@ -31,13 +29,10 @@ public class LimitCommands extends CommandHelper {
 			} else if (list.get(1).equals("rent")) {
 				limit = getConfigHandler().getRentlimit();
 				reply("Rent-Limit list:");
-			} else {
-				error("/rm limit list <sell/rent>");
-			}
+			} else error("/rm limit list <sell/rent>");
 			String output = "[";
-			for (String parent : limit.keySet()) {
-				output += parent + ":" + limit.get(parent) + "; ";
-			}
+			for (String parent : limit.keySet())
+				output += parent + ": " + limit.get(parent) + "; ";
 			reply(output + "]");
 		}
 

@@ -2,34 +2,50 @@ package me.INemesisI.XcraftRegionMarket;
 
 import org.bukkit.block.Block;
 
-public class MarketSign {
-	private Block sign;
-	private String region;
-	private String owner;
-	private double price;
-	private Type type;
-	private String intervall;
+import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-	public MarketSign(Block block, String region, Type type, String owner, double price) {
-		this.setBlock(block);
-		this.setRegion(region);
-		this.setOwner(owner);
-		this.setPrice(price);
-		this.setType(type);
-		this.setIntervall("");
+public abstract class MarketSign {
+	protected Block sign;
+	protected ProtectedRegion region;
+	protected String owner;
+	protected double price;
+	protected Globalprice gp;
+	protected Type type;
+
+	public MarketSign(Block block, ProtectedRegion region, Type type, String owner, double price) {
+		setBlock(block);
+		setRegion(region);
+		setOwner(owner);
+		setPrice(price);
+		setType(type);
 	}
 
-	public MarketSign(Block block, String region, Type type, String owner, double price, String intervall) {
-		this.setBlock(block);
-		this.setRegion(region);
-		this.setOwner(owner);
-		this.setPrice(price);
-		this.setType(type);
-		this.setIntervall(intervall);
+	public MarketSign(Block block, ProtectedRegion region, Type type, String owner, double price, Globalprice gp) {
+		setBlock(block);
+		setRegion(region);
+		setOwner(owner);
+		setPrice(price);
+		setType(type);
+		setGp(gp);
+	}
+
+	public void updatePrice() {
+		if (gp == null) return;
+		BlockVector max = region.getMaximumPoint();
+		BlockVector min = region.getMinimumPoint();
+		max.setY(min.getY());
+		int x = 0;
+		int z = 0;
+		if (max.getX() > min.getX()) x = (int) (max.getX() - min.getX()) + 1;
+		else x = (int) (min.getX() - max.getX()) + 1;
+		if (max.getZ() > min.getZ()) z = (int) (max.getZ() - min.getZ()) + 1;
+		else z = (int) (min.getZ() - max.getZ()) + 1;
+		price = x * z * gp.getPrice();
 	}
 
 	public enum Type {
-		SELL, SOLD, RENT, RENTED
+		SELLING, SOLD, RENTING, RENTED
 	}
 
 	public Block getBlock() {
@@ -37,14 +53,14 @@ public class MarketSign {
 	}
 
 	public void setBlock(Block block) {
-		this.sign = block;
+		sign = block;
 	}
 
-	public String getRegion() {
+	public ProtectedRegion getRegion() {
 		return region;
 	}
 
-	public void setRegion(String region) {
+	public void setRegion(ProtectedRegion region) {
 		this.region = region;
 	}
 
@@ -64,19 +80,19 @@ public class MarketSign {
 		this.price = price;
 	}
 
+	public Globalprice getGp() {
+		return gp;
+	}
+
+	public void setGp(Globalprice gp) {
+		this.gp = gp;
+	}
+
 	public Type getType() {
 		return type;
 	}
 
 	public void setType(Type type) {
 		this.type = type;
-	}
-
-	public String getIntervall() {
-		return intervall;
-	}
-
-	public void setIntervall(String intervall) {
-		this.intervall = intervall;
 	}
 }

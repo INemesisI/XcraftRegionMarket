@@ -15,33 +15,37 @@ public class GPCommands extends CommandHelper {
 
 	@Override
 	protected void execute(CommandSender sender, String Command, List<String> list) {
-		init(sender);
+		this.init(sender);
 
 		if (Command.equals("creategp")) {
-			if (getGP(list.get(0)) != null) {
-				reply("Es gibt bereits einen GlobalPrice mit der ID");
+			if (this.getGP(list.get(0)) != null) {
+				this.reply("Es gibt bereits einen GlobalPrice mit der ID");
 				return;
 			}
 			if (list.get(1).matches("\\d*")) {
-				addGP(list.get(0), Integer.parseInt(list.get(1)));
-				reply("GlobalPrice " + list.get(0) + " wurde erstellt!");
-			} else reply("Der Preis (" + list.get(1) + ") darf nur Zahlen enthalten...");
+				this.addGP(list.get(0), Integer.parseInt(list.get(1)));
+				this.reply("GlobalPrice " + list.get(0) + " wurde erstellt!");
+			} else {
+				this.reply("Der Preis (" + list.get(1) + ") darf nur Zahlen enthalten...");
+			}
 		}
 		if (Command.equals("setgp")) {
-			Globalprice gp = getGP(list.get(0));
+			Globalprice gp = this.getGP(list.get(0));
 			if (gp == null) {
-				reply("Ein GlobalPrice mit der ID " + list.get(0) + " konnte nicht gefunden werden.");
+				this.reply("Ein GlobalPrice mit der ID " + list.get(0) + " konnte nicht gefunden werden.");
 				return;
 			}
 			if (!list.get(1).matches("\\d*")) {
-				reply("Der Preis (" + list.get(1) + ") darf nur Zahlen enthalten...");
+				this.reply("Der Preis (" + list.get(1) + ") darf nur Zahlen enthalten...");
 				return;
 			}
 			gp.setPrice(Integer.parseInt(list.get(1)));
 			plugin.marketHandler.updateAll(gp);
-			reply("Der Preis wurd ge�ndert");
+			this.reply("Der Preis wurd ge�ndert");
 		}
-		if (Command.equals("listgp") && player.hasPermission("XcraftRegionMarket.GP.Use")) reply("Globalprices: " + getGP().toString());
+		if (Command.equals("listgp") && player.hasPermission("XcraftRegionMarket.GP.Use")) {
+			this.reply("Globalprices: " + this.getGP().toString());
+		}
 
 	}
 

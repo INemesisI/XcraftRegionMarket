@@ -17,25 +17,25 @@ public class SellCommand extends CommandHelper {
 
 	@Override
 	protected void execute(CommandSender sender, String Command, List<String> list) {
-		init(sender);
+		this.init(sender);
 
-		MarketSign ms = getClicked().get(sender.getName());
+		MarketSign ms = this.getClicked().get(sender.getName());
 		if (ms == null) {
-			error("Du musst erst ein MarketSign auswählen!");
+			this.error("Du musst erst ein MarketSign auswählen!");
 			return;
 		}
 		if (!ms.getOwner().equals(player.getName()) && !player.hasPermission("XcraftRegionMarket.Sell.All")) {
-			reply("Das ist nicht deine Region!");
+			this.reply("Das ist nicht deine Region!");
 			return;
 		}
 		double price = 0;
 		if (!list.get(0).matches("\\d*")) {
 			Globalprice gp = plugin.marketHandler.getGlobalPrice(list.get(0));
-			if (gp != null && player.hasPermission("XcraftRegionMarket.GP.Use")) {
+			if ((gp != null) && player.hasPermission("XcraftRegionMarket.GP.Use")) {
 				ms.setGp(gp);
 				ms.updatePrice();
 			} else {
-				reply("Unbekannter Preis (" + list.get(0) + ")");
+				this.reply("Unbekannter Preis (" + list.get(0) + ")");
 				return;
 			}
 		} else {
@@ -44,6 +44,6 @@ public class SellCommand extends CommandHelper {
 		}
 		ms.setType(Type.SELLING);
 		plugin.marketHandler.update(ms);
-		reply("Deine Region wird ab jetzt für " + economy.format(price) + " angeboten");
+		this.reply("Deine Region wird ab jetzt für " + economy.format(price) + " angeboten");
 	}
 }

@@ -32,19 +32,26 @@ public class MarketHandler {
 
 	public ArrayList<String> update(MarketSign ms) {
 		ms.updatePrice();
-		ArrayList<String> lines = getFormattedLines(ms);
+		ArrayList<String> lines = this.getFormattedLines(ms);
 		Sign sign = (Sign) ms.getBlock().getState();
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, lines.get(i));
+		}
 		sign.update();
 		return lines;
 	}
 
 	public void updateAll(Globalprice gp) {
-		for (MarketSign sign : sellsigns)
-			if (sign.getGp().equals(gp)) update(sign);
-		for (MarketSign sign : rentsigns)
-			if (sign.getGp().equals(gp)) update(sign);
+		for (MarketSign sign : sellsigns) {
+			if (sign.getGp().equals(gp)) {
+				this.update(sign);
+			}
+		}
+		for (MarketSign sign : rentsigns) {
+			if (sign.getGp().equals(gp)) {
+				this.update(sign);
+			}
+		}
 	}
 
 	public void checkRents() {
@@ -54,8 +61,11 @@ public class MarketHandler {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		if (currenttime != null) for (RentSign rent : rentsigns)
-			checkRent(rent, currenttime);
+		if (currenttime != null) {
+			for (RentSign rent : rentsigns) {
+				this.checkRent(rent, currenttime);
+			}
+		}
 	}
 
 	private void checkRent(RentSign rent, Date currenttime) {
@@ -64,16 +74,19 @@ public class MarketHandler {
 			if (plugin.getEconomy().getBalance(rent.getOwner()) >= rent.getPrice()) {
 				plugin.getEconomy().depositPlayer(rent.getRenter(), rent.getPrice());
 				plugin.getEconomy().withdrawPlayer(rent.getOwner(), rent.getPrice());
-				if (player != null) player
-						.sendMessage(plugin.getCName() + "Dir wurde deine Miete von " + plugin.getEconomy().format(rent.getPrice()) + " abgezogen");
-				plugin.Debug("withdrew " + plugin.getEconomy().format(rent.getPrice()) + " from " + rent.getOwner() + " for renting region " + rent
-						.getRegion());
+				if (player != null) {
+					player.sendMessage(plugin.getCName() + "Dir wurde deine Miete von "
+							+ plugin.getEconomy().format(rent.getPrice()) + " abgezogen");
+				}
+				plugin.Debug("withdrew " + plugin.getEconomy().format(rent.getPrice()) + " from " + rent.getOwner()
+						+ " for renting region " + rent.getRegion());
 				rent.setNextPaytime(currenttime);
 				plugin.Debug("next paytime: " + date.format(rent.getPaytime()));
-				checkRent(rent, currenttime);
+				this.checkRent(rent, currenttime);
 			} else {
 				if (player != null) {
-					player.sendMessage(plugin.getCName() + "Du hattest nicht genügend Geld um deine Miete für " + rent.getRegion() + " zu bezahlen.");
+					player.sendMessage(plugin.getCName() + "Du hattest nicht genügend Geld um deine Miete für "
+							+ rent.getRegion() + " zu bezahlen.");
 					player.sendMessage(plugin.getCName() + "Die Rechte für diese Region wurden dir genommen!");
 				}
 				plugin.Debug(player + " had not enough money to pay his rented region " + rent.getRegion());
@@ -93,15 +106,24 @@ public class MarketHandler {
 	}
 
 	public boolean remove(MarketSign ms) {
-		if (ms instanceof SellSign) return sellsigns.remove(ms);
-		else return rentsigns.remove(ms);
+		if (ms instanceof SellSign) {
+			return sellsigns.remove(ms);
+		} else {
+			return rentsigns.remove(ms);
+		}
 	}
 
 	public MarketSign getMarketSign(Block block) {
-		for (MarketSign sign : sellsigns)
-			if (sign.getBlock().equals(block)) return sign;
-		for (MarketSign sign : rentsigns)
-			if (sign.getBlock().equals(block)) return sign;
+		for (MarketSign sign : sellsigns) {
+			if (sign.getBlock().equals(block)) {
+				return sign;
+			}
+		}
+		for (MarketSign sign : rentsigns) {
+			if (sign.getBlock().equals(block)) {
+				return sign;
+			}
+		}
 		return null;
 	}
 
@@ -137,8 +159,11 @@ public class MarketHandler {
 	}
 
 	public Globalprice getGlobalPrice(String id) {
-		for (Globalprice gp : globalprices)
-			if (gp.getID().equals(id)) return gp;
+		for (Globalprice gp : globalprices) {
+			if (gp.getID().equals(id)) {
+				return gp;
+			}
+		}
 		return null;
 	}
 
@@ -167,14 +192,19 @@ public class MarketHandler {
 		if (sign instanceof RentSign) {
 			intervall = ((RentSign) sign).getIntervall();
 			String[] split = intervall.split(" & ");
-			if (split[0].substring(0, 1).equals("0")) intervall = split[1];
-			if (split[1].substring(0, 1).equals("0")) intervall = split[0];
+			if (split[0].substring(0, 1).equals("0")) {
+				intervall = split[1];
+			}
+			if (split[1].substring(0, 1).equals("0")) {
+				intervall = split[0];
+			}
 		}
 		// format region
 		Map<String, String> format = plugin.configHandler.getRegionformat();
 		region = Character.toUpperCase(region.charAt(0)) + region.substring(1, region.length());
-		for (String key : format.keySet())
+		for (String key : format.keySet()) {
 			region = region.replace(key, format.get(key));
+		}
 		// format sign
 		for (String line : layout) { // TODO: type?!
 			line = line.replaceAll("&([a-f0-9])", "\u00A7$1"); // Color code

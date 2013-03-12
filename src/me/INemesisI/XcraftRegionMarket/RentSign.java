@@ -12,42 +12,48 @@ public class RentSign extends MarketSign {
 	private String renter;
 	private String intervall;
 
-	public RentSign(Block block, ProtectedRegion region, Type type, String owner, double price, String renter, String intervall, Date paytime) {
+	public RentSign(Block block, ProtectedRegion region, Type type, String owner, double price, String renter,
+			String intervall, Date paytime) {
 		super(block, region, type, owner, price);
-		setRenter(renter);
-		setIntervall(intervall);
-		setPaytime(paytime);
+		this.setRenter(renter);
+		this.setIntervall(intervall);
+		this.setPaytime(paytime);
 	}
 
-	public RentSign(Block block, ProtectedRegion region, Type type, String owner, double price, Globalprice gp, String renter, String intervall,
-			Date paytime) {
+	public RentSign(Block block, ProtectedRegion region, Type type, String owner, double price, Globalprice gp,
+			String renter, String intervall, Date paytime) {
 		super(block, region, type, owner, price, gp);
-		setRenter(renter);
-		setIntervall(intervall);
-		setPaytime(paytime);
+		this.setRenter(renter);
+		this.setIntervall(intervall);
+		this.setPaytime(paytime);
 	}
 
-	public RentSign(Block block, ProtectedRegion region, Type type, double price, Globalprice gp, String renter, String intervall, Date date) {
+	public RentSign(Block block, ProtectedRegion region, Type type, double price, Globalprice gp, String renter,
+			String intervall, Date date) {
 		super(block, region, type, renter, price, gp);
-		setRenter(renter);
-		setIntervall(intervall);
-		setNextPaytime(date);
+		this.setRenter(renter);
+		this.setIntervall(intervall);
+		this.setNextPaytime(date);
 	}
 
 	public boolean rentTo(String player, Date t) {
-		if (type == Type.RENTED) return false;
-		setRenter(getOwner());
-		setOwner(player);
-		setType(Type.RENTED);
-		setNextPaytime(t);
+		if (type == Type.RENTED) {
+			return false;
+		}
+		this.setRenter(this.getOwner());
+		this.setOwner(player);
+		this.setType(Type.RENTED);
+		this.setNextPaytime(t);
 		return true;
 	}
 
 	public boolean unrent() {
-		if (type == Type.RENTING) return false;
-		setOwner(getRenter());
-		setType(Type.RENTING);
-		setPaytime(null);
+		if (type == Type.RENTING) {
+			return false;
+		}
+		this.setOwner(this.getRenter());
+		this.setType(Type.RENTING);
+		this.setPaytime(null);
 		return true;
 	}
 
@@ -86,6 +92,6 @@ public class RentSign extends MarketSign {
 	}
 
 	public void setIntervall(String intervall) {
-		intervall = intervall;
+		this.intervall = intervall;
 	}
 }

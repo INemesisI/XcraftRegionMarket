@@ -14,33 +14,41 @@ public abstract class MarketSign {
 	protected Type type;
 
 	public MarketSign(Block block, ProtectedRegion region, Type type, String owner, double price) {
-		setBlock(block);
-		setRegion(region);
-		setOwner(owner);
-		setPrice(price);
-		setType(type);
+		this.setBlock(block);
+		this.setRegion(region);
+		this.setOwner(owner);
+		this.setPrice(price);
+		this.setType(type);
 	}
 
 	public MarketSign(Block block, ProtectedRegion region, Type type, String owner, double price, Globalprice gp) {
-		setBlock(block);
-		setRegion(region);
-		setOwner(owner);
-		setPrice(price);
-		setType(type);
-		setGp(gp);
+		this.setBlock(block);
+		this.setRegion(region);
+		this.setOwner(owner);
+		this.setPrice(price);
+		this.setType(type);
+		this.setGp(gp);
 	}
 
 	public void updatePrice() {
-		if (gp == null) return;
+		if (gp == null) {
+			return;
+		}
 		BlockVector max = region.getMaximumPoint();
 		BlockVector min = region.getMinimumPoint();
 		max.setY(min.getY());
 		int x = 0;
 		int z = 0;
-		if (max.getX() > min.getX()) x = (int) (max.getX() - min.getX()) + 1;
-		else x = (int) (min.getX() - max.getX()) + 1;
-		if (max.getZ() > min.getZ()) z = (int) (max.getZ() - min.getZ()) + 1;
-		else z = (int) (min.getZ() - max.getZ()) + 1;
+		if (max.getX() > min.getX()) {
+			x = (int) (max.getX() - min.getX()) + 1;
+		} else {
+			x = (int) (min.getX() - max.getX()) + 1;
+		}
+		if (max.getZ() > min.getZ()) {
+			z = (int) (max.getZ() - min.getZ()) + 1;
+		} else {
+			z = (int) (min.getZ() - max.getZ()) + 1;
+		}
 		price = x * z * gp.getPrice();
 	}
 

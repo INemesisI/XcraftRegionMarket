@@ -17,14 +17,17 @@ public class PluginCommands extends CommandHelper {
 	public void execute(CommandSender sender, String Command, List<String> list) {
 		this.sender = sender;
 		if (Command.equals("save")) {
-			getConfigHandler().save();
-			reply("Saved the data to config file");
+			this.getConfigHandler().save();
+			this.reply("Saved the data to config file");
 		}
 		if (Command.equals("reload")) {
-			getConfigHandler().load();
-			reply("Files reloaded");
+			this.getConfigHandler().load();
+			this.reply("Files reloaded");
 		}
-		if (Command.equals("update")) for (Globalprice gpr : getMarketHandler().getGlobalPrices())
-			plugin.marketHandler.updateAll(gpr);
+		if (Command.equals("update")) {
+			for (Globalprice gpr : this.getMarketHandler().getGlobalPrices()) {
+				plugin.marketHandler.updateAll(gpr);
+			}
+		}
 	}
 }

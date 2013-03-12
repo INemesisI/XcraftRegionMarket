@@ -1,6 +1,6 @@
 package me.INemesisI.XcraftRegionMarket;
 
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,42 +40,46 @@ public class XcraftRegionMarket extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		configHandler.save();
-		log.info(getDescription().getName() + "disabled!");
+		log.info(this.getDescription().getName() + "disabled!");
 	}
 
 	@Override
 	public void onEnable() {
-		PluginManager pm = getServer().getPluginManager();
+		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(eventlistener, this);
 
-		setupPermissions();
-		setupEconomy();
-		setupWorldguard();
-		setupHandler();
-		startScheduler();
+		this.setupPermissions();
+		this.setupEconomy();
+		this.setupWorldguard();
+		this.setupHandler();
+		this.startScheduler();
 
-		getCommand("rm").setExecutor(new CommandHandler(this));
+		this.getCommand("rm").setExecutor(new CommandHandler(this));
 
-		log.info(getDescription().getName() + " enabled!");
+		log.info(this.getDescription().getName() + " enabled!");
 	}
 
 	private boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(
-				net.milkbowl.vault.permission.Permission.class);
-		if (permissionProvider != null) permission = permissionProvider.getProvider();
+		RegisteredServiceProvider<Permission> permissionProvider = this.getServer().getServicesManager()
+				.getRegistration(net.milkbowl.vault.permission.Permission.class);
+		if (permissionProvider != null) {
+			permission = permissionProvider.getProvider();
+		}
 		return permission != null;
 	}
 
 	private boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(
-				net.milkbowl.vault.economy.Economy.class);
-		if (economyProvider != null) economy = economyProvider.getProvider();
+		RegisteredServiceProvider<Economy> economyProvider = this.getServer().getServicesManager()
+				.getRegistration(net.milkbowl.vault.economy.Economy.class);
+		if (economyProvider != null) {
+			economy = economyProvider.getProvider();
+		}
 
 		return economy != null;
 	}
 
 	private Boolean setupWorldguard() {
-		worldguard = (WorldGuardPlugin) getServer().getPluginManager().getPlugin("WorldGuard");
+		worldguard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 		return worldguard != null;
 	}
 
@@ -89,23 +93,23 @@ public class XcraftRegionMarket extends JavaPlugin {
 	}
 
 	public void startScheduler() {
-		SimpleDateFormat d = new SimpleDateFormat();
-		d.applyPattern("mm:ss");
-		String current = d.format(new Date());
-		String[] split = current.split(":");
-		int min = Integer.parseInt(split[0]);
-		int sec = Integer.parseInt(split[1]);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		int min = cal.get(Calendar.MINUTE);
+		int sec = cal.get(Calendar.SECOND);
 
 		min = 60 - min;
 		sec = 60 - sec;
-		if (min != 0) min--;
+		if (min != 0) {
+			min--;
+		}
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
 				marketHandler.checkRents();
 			}
 		};
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, task, (min * 60 + sec) * 20, 72000);
+		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, task, ((min * 60) + sec) * 20, 72000);
 
 	}
 
@@ -122,7 +126,7 @@ public class XcraftRegionMarket extends JavaPlugin {
 	}
 
 	public String getCName() {
-		return ChatColor.DARK_GRAY + "[" + getDescription().getName() + "] " + getChatColor();
+		return ChatColor.DARK_GRAY + "[" + this.getDescription().getName() + "] " + this.getChatColor();
 	}
 
 	public ChatColor getChatColor() {
@@ -130,6 +134,8 @@ public class XcraftRegionMarket extends JavaPlugin {
 	}
 
 	public void Debug(String s) {
-		if (configHandler.isDebug()) log.info(getDescription().getName() + " DEBUG: " + s);
+		if (configHandler.isDebug()) {
+			log.info(this.getDescription().getName() + " DEBUG: " + s);
+		}
 	}
 }

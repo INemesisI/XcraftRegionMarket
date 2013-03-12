@@ -15,9 +15,11 @@ public class SellSign extends MarketSign {
 	}
 
 	public boolean sellTo(String player) {
-		if (type == Type.SOLD) return false;
-		setOwner(player);
-		setType(Type.SOLD);
+		if (type == Type.SOLD) {
+			return false;
+		}
+		this.setOwner(player);
+		this.setType(Type.SOLD);
 		return true;
 	}
 

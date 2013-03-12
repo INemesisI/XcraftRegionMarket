@@ -17,21 +17,22 @@ public class StopCommand extends CommandHelper {
 
 	@Override
 	protected void execute(CommandSender sender, String Command, List<String> list) {
-		init(sender);
+		this.init(sender);
 
-		MarketSign ms = getClicked().get(sender.getName());
+		MarketSign ms = this.getClicked().get(sender.getName());
 		if (ms == null) {
-			error("Du musst erst ein MarketSign auswählen!");
+			this.error("Du musst erst ein MarketSign auswählen!");
 			return;
 		}
-		if (ms.getType() != Type.SELLING && ms.getType() != Type.RENTED) {
-			reply("Dieses Schild verkauft keine Region");
+		if ((ms.getType() != Type.SELLING) && (ms.getType() != Type.RENTED)) {
+			this.reply("Dieses Schild verkauft keine Region");
 			return;
 		}
-		if (ms.getType().equals("sell") && !ms.getOwner().equals(player.getName()) && !player.hasPermission("XcraftRegionMarket.Sell.All")) {
+		if (ms.getType().equals("sell") && !ms.getOwner().equals(player.getName())
+				&& !player.hasPermission("XcraftRegionMarket.Sell.All")) {
 			ms.setType(Type.SOLD);
 			plugin.marketHandler.update(ms);
-			reply("Deine Region wird ab jetzt nicht mehr zum Verkauf angeboten");
+			this.reply("Deine Region wird ab jetzt nicht mehr zum Verkauf angeboten");
 		}
 
 		if (ms.getType().equals("rented")) {
@@ -42,11 +43,15 @@ public class StopCommand extends CommandHelper {
 				plugin.regionHandler.saveRegion(player.getWorld());
 				rs.setOwner(rs.getRenter());
 				plugin.marketHandler.update(ms);
-				reply("Deine Region wurde abgegeben, du musst keine Miete mehr zahlen");
+				this.reply("Deine Region wurde abgegeben, du musst keine Miete mehr zahlen");
 				// Remove the given group
-				for (String group : plugin.getPermission().getPlayerGroups(player))
-					if (plugin.configHandler.getRentgroups().containsKey(group) && plugin.configHandler.getRentgroups().get(group).contains(
-							ms.getRegion().getParent().getId())) plugin.getPermission().playerRemoveGroup(player, group);
+				for (String group : plugin.getPermission().getPlayerGroups(player)) {
+					if (plugin.configHandler.getRentgroups().containsKey(group)
+							&& plugin.configHandler.getRentgroups().get(group)
+									.contains(ms.getRegion().getParent().getId())) {
+						plugin.getPermission().playerRemoveGroup(player, group);
+					}
+				}
 			}
 		}
 	}
